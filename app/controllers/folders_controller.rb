@@ -1,7 +1,7 @@
 class FoldersController < ApplicationController
   before_action :set_folder, only: [:show, :update, :destroy]
 
-  # GET /states
+  # GET /folders
   def index
     @folders = current_user.folders
     json_response(@folders)
