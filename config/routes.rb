@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   resources :documents
   resources :folders
   resources :states, except: [:create, :update, :destroy, :new, :edit]
+  resources :people
+  resources :tags
 end

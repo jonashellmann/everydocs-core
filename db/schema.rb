@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190525164531) do
+ActiveRecord::Schema.define(version: 20190528071907) do
 
   create_table "documents", force: :cascade do |t|
     t.string   "title",         limit: 255
@@ -22,13 +22,25 @@ ActiveRecord::Schema.define(version: 20190525164531) do
     t.integer  "folder_id",     limit: 4
     t.integer  "user_id",       limit: 4
     t.integer  "state_id",      limit: 4
+    t.integer  "person_id",     limit: 4
     t.datetime "created_at",                                 null: false
     t.datetime "updated_at",                                 null: false
   end
 
   add_index "documents", ["folder_id"], name: "index_documents_on_folder_id", using: :btree
+  add_index "documents", ["person_id"], name: "index_documents_on_person_id", using: :btree
   add_index "documents", ["state_id"], name: "index_documents_on_state_id", using: :btree
   add_index "documents", ["user_id"], name: "index_documents_on_user_id", using: :btree
+
+  create_table "documenttags", force: :cascade do |t|
+    t.integer  "document_id", limit: 4
+    t.integer  "tag_id",      limit: 4
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
+
+  add_index "documenttags", ["document_id"], name: "index_documenttags_on_document_id", using: :btree
+  add_index "documenttags", ["tag_id"], name: "index_documenttags_on_tag_id", using: :btree
 
   create_table "folders", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -42,6 +54,13 @@ ActiveRecord::Schema.define(version: 20190525164531) do
   add_index "folders", ["name"], name: "index_folders_on_name", unique: true, using: :btree
   add_index "folders", ["user_id"], name: "index_folders_on_user_id", using: :btree
 
+  create_table "people", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.integer  "user_id",    limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
   create_table "states", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.datetime "created_at",             null: false
@@ -49,6 +68,14 @@ ActiveRecord::Schema.define(version: 20190525164531) do
   end
 
   add_index "states", ["name"], name: "index_states_on_name", unique: true, using: :btree
+
+  create_table "tags", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.integer  "user_id",    limit: 4
+    t.string   "color",      limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -61,8 +88,11 @@ ActiveRecord::Schema.define(version: 20190525164531) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
 
   add_foreign_key "documents", "folders"
+  add_foreign_key "documents", "people"
   add_foreign_key "documents", "states"
   add_foreign_key "documents", "users"
+  add_foreign_key "documenttags", "documents"
+  add_foreign_key "documenttags", "tags"
   add_foreign_key "folders", "folders"
   add_foreign_key "folders", "users"
 end
