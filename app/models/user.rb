@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   has_many :documents
   has_many :folders
   has_many :tags
+  has_many :people
 
   validates_presence_of :name, :email, :password_digest
 end

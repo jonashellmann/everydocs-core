@@ -3,7 +3,7 @@ class FoldersController < ApplicationController
 
   # GET /folders
   def index
-    @folders = current_user.folders
+    @folders = current_user.folders.where("folder_id is null")
     json_response(@folders)
   end
 
