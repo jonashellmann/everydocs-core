@@ -9,7 +9,25 @@ class DocumentsController < ApplicationController
 
   # POST /documents
   def create
-    @document = current_user.documents.create!(document_params)
+    @file = params[:document]
+    @file_name = (Time.now.to_f * 1000).to_s + '.pdf'
+  
+    # TODO: Speicherort konfigurierbar machen
+    File.open('/var/www/everydocs-files/' + @file_name, 'w+b') {|f| f.write(@file.read)}
+
+    @folder = Folder.find(params[:folder])
+    @state = State.find(params[:state])
+    
+    @params = {
+      "title" => params[:title], 
+      "description" => params[:description],
+      "document_date" => params[:document_date],
+      "folder" => @folder,
+      "state" => @state,
+      "document_url" => @file_name
+    }
+
+    @document = current_user.documents.create!(@params)
     json_response(@document, :created)
   end
 
@@ -33,7 +51,7 @@ class DocumentsController < ApplicationController
   private
 
   def document_params
-    params.permit(:title, :description, :document_date, :document_url, :version, :folder, :user, :state)
+    params.permit(:title, :description, :document_date, :folder, :person, :state, :document)
   end
 
   def set_document
