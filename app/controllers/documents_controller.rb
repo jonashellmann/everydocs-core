@@ -12,18 +12,19 @@ class DocumentsController < ApplicationController
     @file = params[:document]
     @file_name = (Time.now.to_f * 1000).to_s + '.pdf'
   
-    # TODO: Speicherort konfigurierbar machen
     File.open('/var/www/everydocs-files/' + @file_name, 'w+b') {|f| f.write(@file.read)}
 
     @folder = Folder.find(params[:folder])
     @state = State.find(params[:state])
-    
+    @person = Person.find(params[:person])
+
     @params = {
       "title" => params[:title], 
       "description" => params[:description],
       "document_date" => params[:document_date],
       "folder" => @folder,
       "state" => @state,
+      "person" => @person,
       "document_url" => @file_name
     }
 
@@ -38,7 +39,20 @@ class DocumentsController < ApplicationController
 
   # PUT /documents/:id
   def update
-    @document.update(document_params)
+    @folder = Folder.find(params[:folder])
+    @state = State.find(params[:state])
+    @person = Person.find(params[:person])
+
+    @params = {
+      "title" => params[:title],
+      "description" => params[:description],
+      "document_date" => params[:document_date],
+      "folder" => @folder,
+      "state" => @state,
+      "person" => @person,
+    }
+
+    @document.update(@params)
     head :no_content
   end
 
