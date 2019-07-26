@@ -49,9 +49,9 @@ class DocumentsController < ApplicationController
 
   # PUT /documents/:id
   def update
-    @folder = Folder.find(params[:folder])
-    @state = State.find(params[:state])
-    @person = Person.find(params[:person])
+    @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
+    @state = params[:state].blank? ? nil : State.find(params[:state])
+    @person = params[:person].blank? ? nil : Person.find(params[:person])
 
     @params = {
       "title" => params[:title],
