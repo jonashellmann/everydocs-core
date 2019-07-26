@@ -16,7 +16,7 @@ class DocumentsController < ApplicationController
       @file_name = nil
     else
       @file_name = SecureRandom.uuid + '.pdf'
-      File.open('/var/www/html/everydocs-web/files/' + @file_name, 'w+b') {|f| f.write(@file.read)}
+      File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
     end
 
     @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
@@ -44,7 +44,7 @@ class DocumentsController < ApplicationController
 
   # GET /documents/file/:id
   def download
-    send_file '/var/www/html/everydocs-web/files/' + @document.document_url, :type=>"application/pdf", :x_sendfile=>true
+    send_file Settings.document_folder + @document.document_url, :type=>"application/pdf", :x_sendfile=>true
   end
 
   # PUT /documents/:id
