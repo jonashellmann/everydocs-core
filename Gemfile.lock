@@ -113,7 +113,7 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.11.3)
-    mysql2 (0.3.21)
+    mysql2 (0.4.10)
     nio4r (2.4.0)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
@@ -201,7 +201,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   jwt
-  mysql2 (~> 0.3.18)
+  mysql2 (~> 0.4.4)
   rails (= 5.2.3)
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)

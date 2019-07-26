@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,82 +10,77 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190528071907) do
+ActiveRecord::Schema.define(version: 2019_05_28_071907) do
 
-  create_table "documents", force: :cascade do |t|
-    t.string   "title",         limit: 255
-    t.text     "description",   limit: 65535
-    t.date     "document_date"
-    t.string   "document_url",  limit: 255
-    t.decimal  "version",                     precision: 10
-    t.integer  "folder_id",     limit: 4
-    t.integer  "user_id",       limit: 4
-    t.integer  "state_id",      limit: 4
-    t.integer  "person_id",     limit: 4
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+  create_table "documents", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.date "document_date"
+    t.string "document_url"
+    t.decimal "version", precision: 10
+    t.integer "folder_id"
+    t.integer "user_id"
+    t.integer "state_id"
+    t.integer "person_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["folder_id"], name: "index_documents_on_folder_id"
+    t.index ["person_id"], name: "index_documents_on_person_id"
+    t.index ["state_id"], name: "index_documents_on_state_id"
+    t.index ["user_id"], name: "index_documents_on_user_id"
   end
 
-  add_index "documents", ["folder_id"], name: "index_documents_on_folder_id", using: :btree
-  add_index "documents", ["person_id"], name: "index_documents_on_person_id", using: :btree
-  add_index "documents", ["state_id"], name: "index_documents_on_state_id", using: :btree
-  add_index "documents", ["user_id"], name: "index_documents_on_user_id", using: :btree
-
-  create_table "documenttags", force: :cascade do |t|
-    t.integer  "document_id", limit: 4
-    t.integer  "tag_id",      limit: 4
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+  create_table "documenttags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.integer "document_id"
+    t.integer "tag_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_documenttags_on_document_id"
+    t.index ["tag_id"], name: "index_documenttags_on_tag_id"
   end
 
-  add_index "documenttags", ["document_id"], name: "index_documenttags_on_document_id", using: :btree
-  add_index "documenttags", ["tag_id"], name: "index_documenttags_on_tag_id", using: :btree
-
-  create_table "folders", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.integer  "folder_id",  limit: 4
-    t.integer  "user_id",    limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "folders", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "name"
+    t.integer "folder_id"
+    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["folder_id"], name: "index_folders_on_folder_id"
+    t.index ["name"], name: "index_folders_on_name", unique: true
+    t.index ["user_id"], name: "index_folders_on_user_id"
   end
 
-  add_index "folders", ["folder_id"], name: "index_folders_on_folder_id", using: :btree
-  add_index "folders", ["name"], name: "index_folders_on_name", unique: true, using: :btree
-  add_index "folders", ["user_id"], name: "index_folders_on_user_id", using: :btree
-
-  create_table "people", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.integer  "user_id",    limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "people", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "name"
+    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "states", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.integer  "user_id",    limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "states", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "name"
+    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_states_on_name", unique: true
   end
 
-  add_index "states", ["name"], name: "index_states_on_name", unique: true, using: :btree
-
-  create_table "tags", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.integer  "user_id",    limit: 4
-    t.string   "color",      limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "name"
+    t.integer "user_id"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "users", force: :cascade do |t|
-    t.string   "name",            limit: 255
-    t.string   "password_digest", limit: 255
-    t.string   "email",           limit: 255
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "name"
+    t.string "password_digest"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
-
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
 
   add_foreign_key "documents", "folders"
   add_foreign_key "documents", "people"

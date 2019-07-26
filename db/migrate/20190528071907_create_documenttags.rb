@@ -1,4 +1,4 @@
-class CreateDocumenttags < ActiveRecord::Migration
+class CreateDocumenttags < ActiveRecord::Migration[4.2]
   def change
     create_table :documenttags do |t|
       t.references :document, index: true, foreign_key: true
