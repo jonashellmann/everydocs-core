@@ -1,5 +1,6 @@
 class DocumentsController < ApplicationController
-  before_action :set_document, only: [:show, :update, :destroy]
+  before_action :set_document, only: [:show, :download, :update, :destroy]
+  skip_before_action :authorize_request, only: :download
 
   # GET /documents
   def index
@@ -10,13 +11,17 @@ class DocumentsController < ApplicationController
   # POST /documents
   def create
     @file = params[:document]
-    @file_name = (Time.now.to_f * 1000).to_s + '.pdf'
-  
-    File.open('/var/www/everydocs-files/' + @file_name, 'w+b') {|f| f.write(@file.read)}
+    
+    if @file.blank?
+      @file_name = nil
+    else
+      @file_name = SecureRandom.uuid + '.pdf'
+      File.open('/var/www/html/everydocs-web/files/' + @file_name, 'w+b') {|f| f.write(@file.read)}
+    end
 
-    @folder = Folder.find(params[:folder])
-    @state = State.find(params[:state])
-    @person = Person.find(params[:person])
+    @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
+    @state = params[:state].blank? ? nil : State.find(params[:state])
+    @person = params[:person].blank? ? nil : Person.find(params[:person])
 
     @params = {
       "title" => params[:title], 
@@ -35,6 +40,11 @@ class DocumentsController < ApplicationController
   # GET /documents/:id
   def show
     json_response(@document)
+  end
+
+  # GET /documents/file/:id
+  def download
+    send_file '/var/www/html/everydocs-web/files/' + @document.document_url, :type=>"application/pdf", :x_sendfile=>true
   end
 
   # PUT /documents/:id

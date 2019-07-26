@@ -63,6 +63,7 @@ ActiveRecord::Schema.define(version: 20190528071907) do
 
   create_table "states", force: :cascade do |t|
     t.string   "name",       limit: 255
+    t.integer  "user_id",    limit: 4
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end

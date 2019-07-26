@@ -7,6 +7,12 @@ class FoldersController < ApplicationController
     json_response(@folders)
   end
 
+  # GET /folders-all
+  def all
+    @folders = current_user.folders
+    json_response(@folders)
+  end
+
   # POST /folders
   def create
     @folder = current_user.folders.create!(folder_params)

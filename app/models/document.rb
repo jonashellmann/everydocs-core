@@ -7,7 +7,7 @@ class Document < ActiveRecord::Base
   has_many :documenttags
   has_many :tags, through: :documenttags
 
-  validates_presence_of :title, :document_date, :user, :state, :folder
+  validates_presence_of :title, :document_date, :user, :document_url
 
   def as_json(_options = {})
     super include: {

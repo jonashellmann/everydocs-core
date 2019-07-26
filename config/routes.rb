@@ -5,8 +5,10 @@ Rails.application.routes.draw do
   post 'signup', to: 'users#create'
 
   resources :documents
+  get 'documents/file/:id', to: 'documents#download'
   resources :folders
-  resources :states, except: [:create, :update, :destroy, :new, :edit]
+  get 'folders-all', to: 'folders#all' 
+  resources :states
   resources :people
   resources :tags
 end
