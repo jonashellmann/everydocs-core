@@ -12,7 +12,7 @@
 
 ActiveRecord::Schema.define(version: 2019_05_28_071907) do
 
-  create_table "documents", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "documents", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "title"
     t.text "description"
     t.date "document_date"
@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["user_id"], name: "index_documents_on_user_id"
   end
 
-  create_table "documenttags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "documenttags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "document_id"
     t.integer "tag_id"
     t.datetime "created_at", null: false
@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["tag_id"], name: "index_documenttags_on_tag_id"
   end
 
-  create_table "folders", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "folders", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.integer "folder_id"
     t.integer "user_id"
@@ -50,14 +50,14 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["user_id"], name: "index_folders_on_user_id"
   end
 
-  create_table "people", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "people", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "states", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "states", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
     t.datetime "created_at", null: false
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["name"], name: "index_states_on_name", unique: true
   end
 
-  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
     t.string "color"
@@ -73,7 +73,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.string "password_digest"
     t.string "email"
@@ -82,10 +82,10 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
-  add_foreign_key "documents", "folders"
-  add_foreign_key "documents", "people"
-  add_foreign_key "documents", "states"
-  add_foreign_key "documents", "users"
+  add_foreign_key "documents", "folders", on_delete: :nullify
+  add_foreign_key "documents", "people", on_delete: :nullify
+  add_foreign_key "documents", "states", on_delete: :nullify
+  add_foreign_key "documents", "users", on_delete: :cascade
   add_foreign_key "documenttags", "documents"
   add_foreign_key "documenttags", "tags"
   add_foreign_key "folders", "folders"

@@ -1,8 +1,8 @@
 class Document < ActiveRecord::Base
-  belongs_to :folder
+  belongs_to :folder, optional: true
   belongs_to :user
-  belongs_to :state
-  belongs_to :person
+  belongs_to :state, optional: true
+  belongs_to :person, optional: true
 
   has_many :documenttags
   has_many :tags, through: :documenttags

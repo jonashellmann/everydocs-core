@@ -20,13 +20,13 @@ class StatesController < ApplicationController
 
   # PUT /states/:id
   def update
-    @tag.update(state_params)
+    @state.update(state_params)
     head :no_content
   end
 
   # DELETE /states/:id
   def destroy
-    @tag.destroy
+    @state.destroy
     head :no_content
   end
 
