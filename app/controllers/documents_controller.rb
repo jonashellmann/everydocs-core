@@ -68,6 +68,9 @@ class DocumentsController < ApplicationController
 
   # DELETE /documents/:id
   def destroy
+    @filename = Settings.document_folder + @document.document_url
+    File.delete(@filename) if File.exist?(@filename)
+    
     @document.destroy
     head :no_content
   end
