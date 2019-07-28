@@ -7,13 +7,13 @@ class DocumentsController < ApplicationController
     @documents = current_user.documents.order(document_date: :desc)
 
     if (!params[:folder_filter].blank?)
-      @documents = @documents.where('folder_id', params[:folder_filter])
+      @documents = @documents.select { |d| d.folder_id == convert_to_int(params[:folder_filter])}
     end
     if (!params[:state_filter].blank?)
-      @documents = @documents.where('state_id', params[:state_filter])
+      @documents = @documents.select { |d| d.state_id == convert_to_int(params[:state_filter])}
     end
     if (!params[:person_filter].blank?)
-      @documents = @documents.where('person_id', params[:person_filter])
+      @documents = @documents.select { |d| d.person_id == convert_to_int(params[:person_filter])}
     end
 
     json_response(@documents)
@@ -87,6 +87,11 @@ class DocumentsController < ApplicationController
   end
 
   private
+
+  def convert_to_int(string)
+    num = string.to_i
+    num if num.to_s == string
+  end
 
   def set_document
     @document = Document.find(params[:id])
