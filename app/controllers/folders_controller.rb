@@ -15,7 +15,13 @@ class FoldersController < ApplicationController
 
   # POST /folders
   def create
-    @folder = current_user.folders.create!(folder_params)
+    @parent_folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
+    @params = {
+      "name" => params[:name],
+      "folder" => @parent_folder
+    }
+
+    @folder = current_user.folders.create!(@params)
     json_response(@folder, :created)
   end
 
@@ -26,7 +32,13 @@ class FoldersController < ApplicationController
 
   # PUT /folders/:id
   def update
-    @folder.update(folder_params)
+    @parent_folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
+    @params = {
+      "name" => params[:name],
+      "folder" => @parent_folder
+    }
+
+    @folder.update(@params)
     head :no_content
   end
 
@@ -37,10 +49,6 @@ class FoldersController < ApplicationController
   end
 
   private
-
-  def folder_params
-    params.permit(:name, :folder, :user)
-  end
 
   def set_folder
     @folder = Folder.find(params[:id])

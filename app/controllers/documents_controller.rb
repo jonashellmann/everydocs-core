@@ -88,10 +88,6 @@ class DocumentsController < ApplicationController
 
   private
 
-  def document_params
-    params.permit(:title, :description, :document_date, :folder, :person, :state, :document)
-  end
-
   def set_document
     @document = Document.find(params[:id])
   end
