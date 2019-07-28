@@ -4,7 +4,18 @@ class DocumentsController < ApplicationController
 
   # GET /documents
   def index
-    @documents = current_user.documents
+    @documents = current_user.documents.order(document_date: :desc)
+    
+    if (!params[:folder_filter])
+      @documents = @documents.where('folder_id', params[:folder_filter])
+    end
+    if (!params[:state_filter])
+      @documents = @documents.where('state_id', params[:state_filter])
+    end
+    if (!params[:person_filter])
+      @documents = @documents.where('person_id', params[:person_filter])
+    end
+
     json_response(@documents)
   end
 
