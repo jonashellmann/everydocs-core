@@ -5,14 +5,14 @@ class DocumentsController < ApplicationController
   # GET /documents
   def index
     @documents = current_user.documents.order(document_date: :desc)
-    
-    if (!params[:folder_filter])
+
+    if (!params[:folder_filter].blank?)
       @documents = @documents.where('folder_id', params[:folder_filter])
     end
-    if (!params[:state_filter])
+    if (!params[:state_filter].blank?)
       @documents = @documents.where('state_id', params[:state_filter])
     end
-    if (!params[:person_filter])
+    if (!params[:person_filter].blank?)
       @documents = @documents.where('person_id', params[:person_filter])
     end
 
