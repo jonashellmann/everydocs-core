@@ -2,7 +2,7 @@
 
 **Please note: currently under development**
 
-EveryDocs Core is the server-side part of EveryDocs. This project will contain an web interface and a mobile app in the near future. All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally. 
+EveryDocs Core is the server-side part of EveryDocs. This project will contain an [web interface](https://github.com/jonashellmann/everydocs-web/) and a mobile app in the near future. All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally. 
 
 ## Installation
 
@@ -12,6 +12,7 @@ EveryDocs Core is the server-side part of EveryDocs. This project will contain a
 4. Configure your database connection in config/database.yml
 5. Start your Rails server on a specific port (or on port 3000, if you don't use the command line parameter): _rails server --port 1234_
 6. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
+7. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
 
 ## Routes Documentation
 
