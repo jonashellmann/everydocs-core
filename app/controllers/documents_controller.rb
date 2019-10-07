@@ -55,7 +55,7 @@ class DocumentsController < ApplicationController
 
   # GET /documents/file/:id
   def download
-    send_file Settings.document_folder + @document.document_url, :type=>"application/pdf", :x_sendfile=>true
+    send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true
   end
 
   # PUT /documents/:id
