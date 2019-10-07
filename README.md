@@ -10,9 +10,10 @@ EveryDocs Core is the server-side part of EveryDocs. This project will contain a
 2. If you haven't installed the Rails Gem, you can run the following command: _gem install ruby_
 3. Clone this repository in a location of your own choice: _git clone https://github.com/jonashellmann/everydocs-core_
 4. Configure your database connection in config/database.yml
-5. Start your Rails server on a specific port (or on port 3000, if you don't use the command line parameter): _rails server --port 1234_
-6. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
-7. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
+5. Configure the folder where documents are stored in config/settings.yml
+6. Start your Rails server on a specific port (or on port 3000, if you don't use the command line parameter): _rails server --port 1234_
+7. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
+8. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
 
 ## Routes Documentation
 
