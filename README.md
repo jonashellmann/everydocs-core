@@ -28,4 +28,4 @@ can configure this in config/settings.yml. To restore, just put the documents ba
 
 ## Routes Documentation
 
-To learn about the routes the API offers, run the following command: _rake routes_
+To learn about the routes the API offers, run the following command: ``rake routes``
