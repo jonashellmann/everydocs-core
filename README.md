@@ -12,15 +12,16 @@ EveryDocs Core is the server-side part of EveryDocs. This project will contain a
 4. Configure your database connection in config/database.yml
 5. Configure the folder where documents are stored in config/settings.yml
 6. Install required dependencies by ruuning: ``bundle install``
-7. Start your Rails server on a specific port (or on port 3000, if you don't use the command line parameter): ``rails server --port 1234``
+7. You might want to change the port of the application in start-app.sh.
+7. Start your Rails server: ``./start-app.sh``
 8. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
 9. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
+10. Stop the application: ``./stop-app.sh``
 
 ## Backup
 
-To backup your database, you can run: ``rake site:backup``. This command
-creates an archive file called site-backup.tgz. You can restore this backup by
-running ``rake site:restore``.
+To backup your application, you can simply use the backup functionality of your
+database. For example, a MySQL/MariaDB DBMS may use mysqldump.
 
 Additionally you have to backup the place where the documents are stored. You
 can configure this in config/settings.yml. To restore, just put the documents back in that location.

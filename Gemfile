@@ -27,9 +27,6 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'jwt'
 gem 'config'
 
-# Rails Backup
-gem 'rails-backup-migrate'
-
 # Use Unicorn as the app server
 # gem 'unicorn'
 
