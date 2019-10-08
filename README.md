@@ -7,13 +7,23 @@ EveryDocs Core is the server-side part of EveryDocs. This project will contain a
 ## Installation
 
 1. Make sure you have Ruby installed. For an installation guide, check here: [Ruby installation guide](https://guides.rubyonrails.org/getting_started.html#installing-rails)
-2. If you haven't installed the Rails Gem, you can run the following command: _gem install ruby_
-3. Clone this repository in a location of your own choice: _git clone https://github.com/jonashellmann/everydocs-core_
+2. If you haven't installed the Rails Gem, you can run the following command: ``gem install ruby``
+3. Clone this repository in a location of your own choice: ``git clone https://github.com/jonashellmann/everydocs-core``
 4. Configure your database connection in config/database.yml
 5. Configure the folder where documents are stored in config/settings.yml
-6. Start your Rails server on a specific port (or on port 3000, if you don't use the command line parameter): _rails server --port 1234_
-7. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
-8. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
+6. Install required dependencies by ruuning: ``bundle install``
+7. Start your Rails server on a specific port (or on port 3000, if you don't use the command line parameter): ``rails server --port 1234``
+8. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
+9. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
+
+## Backup
+
+To backup your database, you can run: ``rake site:backup``. This command
+creates an archive file called site-backup.tgz. You can restore this backup by
+running ``rake site:restore``.
+
+Additionally you have to backup the place where the documents are stored. You
+can configure this in config/settings.yml. To restore, just put the documents back in that location.
 
 ## Routes Documentation
 
