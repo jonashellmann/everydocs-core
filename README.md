@@ -1,7 +1,5 @@
 # EveryDocs Core
 
-**Please note: currently under development**
-
 EveryDocs Core is the server-side part of EveryDocs. This project will contain an [web interface](https://github.com/jonashellmann/everydocs-web/) and a mobile app in the near future. All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally. 
 
 ## Installation
