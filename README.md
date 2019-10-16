@@ -6,7 +6,7 @@ EveryDocs Core is the server-side part of EveryDocs. This project will contain a
 
 1. Make sure you have Ruby installed. For an installation guide, check here: [Ruby installation guide](https://guides.rubyonrails.org/getting_started.html#installing-rails)
 2. If you haven't installed the Rails Gem, you can run the following command: ``gem install rails``
-3. Clone this repository in a location of your own choice: ``git clone https://github.com/jonashellmann/everydocs-core``
+3. Download the newest release and unzip it in a location of your own choice.
 4. Configure your database connection in config/database.yml
 5. Configure the folder where documents are stored in config/settings.yml
 6. Install required dependencies by ruuning: ``bundle install``
