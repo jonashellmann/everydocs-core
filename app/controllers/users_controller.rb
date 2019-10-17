@@ -8,7 +8,7 @@ class UsersController < ApplicationController
     response = { message: Message.account_created, auth_token: auth_token }
     json_response(response, :created)
 
-    rescue StandardError => e
+    rescue ActiveRecord::RecordNotUnique
       json_response({message: 'There is already an account with this email!'})
   end
 
