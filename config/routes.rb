@@ -11,4 +11,6 @@ Rails.application.routes.draw do
   resources :states
   resources :people
   resources :tags
+
+  get 'search/suggestions/:text', to: 'search#suggestions'
 end
