@@ -15,6 +15,10 @@ class DocumentsController < ApplicationController
     if (!params[:person_filter].blank?)
       @documents = @documents.select { |d| d.person_id == convert_to_int(params[:person_filter])}
     end
+    if (!params[:search].blank?)
+      @search = params[:search].to_s.downcase
+      @documents = @documents.select { |d| d.title.downcase.include? @search or d.description.downcase.include? @search or d.document_text.downcase.include? @search}
+    end
 
     json_response(@documents)
   end
@@ -49,6 +53,7 @@ class DocumentsController < ApplicationController
       "title" => params[:title], 
       "description" => params[:description],
       "document_date" => params[:document_date],
+      "document_text" => @file_text,
       "folder" => @folder,
       "state" => @state,
       "person" => @person,

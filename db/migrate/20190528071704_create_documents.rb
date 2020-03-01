@@ -6,6 +6,7 @@ class CreateDocuments < ActiveRecord::Migration[4.2]
       t.date :document_date
       t.string :document_url
       t.decimal :version
+      t.text :document_text
       t.references :folder, index: true, foreign_key: {on_delete: :nullify}
       t.references :user, index: true, foreign_key: {on_delete: :cascade}
       t.references :state, index: true, foreign_key: {on_delete: :nullify}
