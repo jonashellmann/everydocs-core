@@ -16,8 +16,8 @@ class DocumentsController < ApplicationController
       @documents = @documents.select { |d| d.person_id == convert_to_int(params[:person_filter])}
     end
     if (!params[:search].blank?)
-      @search = params[:search].to_s.downcase
-      @documents = @documents.select { |d| d.title.downcase.include? @search or d.description.downcase.include? @search or d.document_text.downcase.include? @search}
+      @search = params[:search].to_s.downcase.delete(' ')
+      @documents = @documents.select { |d| (d.title.downcase.delete(' ').include?(@search) or (!d.description.nil? and d.description.downcase.delete(' ').include?(@search)) or (!d.document_text.nil? and d.document_text.downcase.delete(' ').include?(@search)))}
     end
 
     json_response(@documents)
