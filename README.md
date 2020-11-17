@@ -1,6 +1,5 @@
 # EveryDocs Core
 
-https://img.shields.io/tokei/lines/github/jonashellmann/everydocs-core?style=flat-square
 ![Lines of
 Code](https://img.shields.io/tokei/lines/github/jonashellmann/everydocs-core?style=flat-square)
 
