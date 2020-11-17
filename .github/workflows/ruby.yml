@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: bundle install
     - name: Check Ruby Syntax in .rb files
-      run: find . | grep ".*\.rb$" | xargs -L 1 ruby -c
+      run: find ./app/ | grep ".*\.rb$" | xargs -L 1 ruby -c
     - name: Setup database
       run: rails db:migrate RAILS_ENV=test
     - name: Run tests
