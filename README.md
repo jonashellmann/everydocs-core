@@ -1,7 +1,12 @@
 # EveryDocs Core
 
-![Build Status](https://img.shields.io/github/workflow/status/jonashellmann/everydocs-core/Ruby?style=flat-square)
+[![Build Status](https://img.shields.io/github/workflow/status/jonashellmann/everydocs-core/Ruby?style=flat-square)](https://github.com/jonashellmann/everydocs-core/actions?query=workflow%3ARuby)
 ![Lines of Code](https://img.shields.io/tokei/lines/github/jonashellmann/everydocs-core?style=flat-square)
+![License](https://img.shields.io/github/license/jonashellmann/everydocs-core?style=flat-square)
+![GitHub Repo
+Stars](https://img.shields.io/github/stars/jonashellmann/everydocs-core?style=social)
+[![Commit activity](https://img.shields.io/github/commit-activity/y/jonashellmann/everydocs-core?style=flat-square)](https://github.com/jonashellmann/everydocs-core/commits/)
+[![Last commit](https://img.shields.io/github/last-commit/jonashellmann/everydocs-core?style=flat-square)](https://github.com/jonashellmann/everydocs-core/commits/)
 
 EveryDocs Core is the server-side part of EveryDocs. This project will contain an [web interface](https://github.com/jonashellmann/everydocs-web/) and a mobile app in the near future. All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally. 
 
