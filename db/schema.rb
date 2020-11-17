@@ -2,22 +2,23 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema.define(version: 2019_05_28_071907) do
 
-  create_table "documents", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "documents", force: :cascade do |t|
     t.string "title"
     t.text "description"
     t.date "document_date"
     t.string "document_url"
-    t.decimal "version", precision: 10
+    t.decimal "version"
+    t.text "document_text"
     t.integer "folder_id"
     t.integer "user_id"
     t.integer "state_id"
@@ -30,7 +31,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["user_id"], name: "index_documents_on_user_id"
   end
 
-  create_table "documenttags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "documenttags", force: :cascade do |t|
     t.integer "document_id"
     t.integer "tag_id"
     t.datetime "created_at", null: false
@@ -39,7 +40,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["tag_id"], name: "index_documenttags_on_tag_id"
   end
 
-  create_table "folders", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "folders", force: :cascade do |t|
     t.string "name"
     t.integer "folder_id"
     t.integer "user_id"
@@ -50,14 +51,14 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["user_id"], name: "index_folders_on_user_id"
   end
 
-  create_table "people", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "people", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "states", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "states", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
     t.datetime "created_at", null: false
@@ -65,7 +66,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.index ["name"], name: "index_states_on_name", unique: true
   end
 
-  create_table "tags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "tags", force: :cascade do |t|
     t.string "name"
     t.integer "user_id"
     t.string "color"
@@ -73,7 +74,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "password_digest"
     t.string "email"
