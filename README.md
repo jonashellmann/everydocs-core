@@ -16,9 +16,9 @@ set an encryption key: ``EDITOR="mate --wait" bin/rails credentials:edit``
 9. Make sure that the environment variable 'SECRET_KEY_BASE' has a value.
    If not, you can generate a key by running ``rake secret``. You either set
 your environment variable to this value or put it in config/secrets.yml under
-production. 
+production.
 10. Start your Rails server: ``./start-app.sh``
-11. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver.
+11. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver. If you run this application under an URL, make sure to add this URL to config.hosts at the end of the file ./config/environments/development.rb.
 12. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
 13. Stop the application: ``./stop-app.sh``
 
