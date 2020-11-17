@@ -1,5 +1,9 @@
 # EveryDocs Core
 
+https://img.shields.io/tokei/lines/github/jonashellmann/everydocs-core?style=flat-square
+![Lines of
+Code](https://img.shields.io/tokei/lines/github/jonashellmann/everydocs-core?style=flat-square)
+
 EveryDocs Core is the server-side part of EveryDocs. This project will contain an [web interface](https://github.com/jonashellmann/everydocs-web/) and a mobile app in the near future. All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally. 
 
 ## Installation
