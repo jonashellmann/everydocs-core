@@ -1,0 +1,27 @@
+name: Ruby
+
+on: [push, pull_request]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.6
+        bundler-cache: true
+    - name: Install dependencies
+      run: |
+        gem install rails
+        bundle install
+    - name: Check Ruby Syntax in .rb files
+      run: find ./app/ | grep ".*\.rb$" | xargs -L 1 ruby -c
+    - name: Setup database
+      run: rails db:migrate RAILS_ENV=test
+    - name: Run tests
+      run: bundle exec rake
+
