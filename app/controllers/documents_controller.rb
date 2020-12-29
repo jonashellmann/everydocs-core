@@ -33,16 +33,21 @@ class DocumentsController < ApplicationController
     else
       @file_name = SecureRandom.uuid + '.pdf'
       File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
-      
-      reader = PDF::Reader.new(Settings.document_folder + @file_name)
-      reader.pages.each do |page|
-        @file_text = @file_text + page.text
-      end
 
-      @file_text.delete!("\r\n")
-      @file_text.delete!("\n")
-      @file_text.delete!(' ')
-      puts @file_text
+      begin
+        reader = PDF::Reader.new(Settings.document_folder + @file_name)
+        reader.pages.each do |page|
+          @file_text = @file_text + page.text
+        end
+
+        @file_text.delete!("\r\n")
+        @file_text.delete!("\n")
+        @file_text.delete!(' ')
+        puts @file_text
+
+        rescue PDF::Reader::MalformedPDFError
+          @file_text = ""
+        end
     end
 
     @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
