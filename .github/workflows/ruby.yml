@@ -12,12 +12,12 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: 2.6
         bundler-cache: true
     - name: Install dependencies
       run: |
         gem install rails
-        bundle install --full-index
+        bundle install
     - name: Check Ruby Syntax in .rb files
       run: find ./app/ | grep ".*\.rb$" | xargs -L 1 ruby -c
     - name: Setup database
