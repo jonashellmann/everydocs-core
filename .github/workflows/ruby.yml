@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         gem install rails
-        bundle install
+        bundle install --full-index
     - name: Check Ruby Syntax in .rb files
       run: find ./app/ | grep ".*\.rb$" | xargs -L 1 ruby -c
     - name: Setup database
