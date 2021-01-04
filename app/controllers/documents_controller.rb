@@ -43,7 +43,10 @@ class DocumentsController < ApplicationController
         @file_text.delete!("\r\n")
         @file_text.delete!("\n")
         @file_text.delete!(' ')
-        puts @file_text
+
+        if @file_text.bytesize > 65535
+          @file_text = ""
+        end
 
         rescue PDF::Reader::MalformedPDFError
           @file_text = ""
