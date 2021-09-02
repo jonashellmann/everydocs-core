@@ -8,7 +8,24 @@ Stars](https://img.shields.io/github/stars/jonashellmann/everydocs-core?style=so
 [![Commit activity](https://img.shields.io/github/commit-activity/y/jonashellmann/everydocs-core?style=flat-square)](https://github.com/jonashellmann/everydocs-core/commits/)
 [![Last commit](https://img.shields.io/github/last-commit/jonashellmann/everydocs-core?style=flat-square)](https://github.com/jonashellmann/everydocs-core/commits/)
 
-EveryDocs Core is the server-side part of EveryDocs. This project will contain an [web interface](https://github.com/jonashellmann/everydocs-web/) and a mobile app in the near future. All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally. 
+EveryDocs Core is the server-side part of EveryDocs. This project contains a [web interface](https://github.com/jonashellmann/everydocs-web/). All in all, EveryDocs is a simple Document Management System (DMS) for private use. It contains basic functionality to organize your documents digitally.
+
+## Features
+
+- Uploading PDF documents with a title, description and the date the document was created
+- Organizing documents in folders and subfolders
+- Adding people and processing states to documents
+- Extracting the content from the PDF file for full-text search
+- Searching all documents by title, description or content of the document
+- Creating new accounts (be aware that at the current moment everybody who knows the URL can create new accounts)
+- Authentication via JsonWebToken
+- REST-API for all CRUD operation for documents, folders, persons and processing states
+- Mobile-friendly web UI
+
+## Screenshots of the web interface
+
+![EveryDocs Web - Dashboard](images/dashboard.png)
+![EveryDocs Web - Uploading new document](images/new-document.png)
 
 ## Installation
 
