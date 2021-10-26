@@ -29,6 +29,25 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 
 ## Installation
 
+### Docker (recommended)
+
+Start the container and make the API accessible on port ``8080`` by running the following commands. Of course, you can change the port in the last command.
+Also make sure to check the folder that is mounted into the container. In this case, the uploaded files are stored in ``/data/everydocs`` on the host.
+<pre>docker run -p 127.0.0.1:8080:5678/tcp -e SECRET_KEY_BASE="$(openssl rand -hex 64)" -v /data/everydocs:/var/everydocs-files everydocs</pre>
+
+You can configure the application by using the following environment variables:
+- ``EVERYDOCS_DB_ADAPTER``: The database adapter (default: ``mysql2``)
+- ``EVERYDOCS_DB_NAME``: The name of the database (default: ``everydocs``)
+- ``EVERYDOCS_DB_USER``: The user for the database connection (default: ``everydocs``)
+- ``EVERYDOCS_DB_PASSWORD``: The password for the database connection (no default)
+- ``EVERYDOCS_DB_HOST``: The host of the database (default: ``localhost``)
+- ``EVERYDOCS_DB_PORT``: The port of the database (default: ``3306``)
+
+You might want to include this container in a network so it has access to a database container.
+Also there are ways to connect to a database that runs on the host (e.g. see [Stackoverflow](https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach)).
+
+### Manual Installation (not recommended)
+
 1. Make sure you have Ruby installed. For an installation guide, check here: [Ruby installation guide](https://guides.rubyonrails.org/getting_started.html#installing-rails)
 2. If you haven't installed the Rails Gem, you can run the following command: ``gem install rails``
 3. Download the newest release and unzip it in a location of your own choice.

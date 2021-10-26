@@ -30,6 +30,9 @@ gem 'config'
 # Use OCR tool to extract text from pdf
 gem 'pdf-reader'
 
+# Rails server
+gem 'webrick', '~> 1.7'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
