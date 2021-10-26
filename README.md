@@ -37,7 +37,7 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 5. Configure the folder where documents are stored in config/settings.yml.
    The default location is ``/var/everydocs-files/``.
 6. Install required dependencies by running: ``bundle install``
-7. You might want to change the port of the application in start-app.sh.
+7. You might want to change the port of the application in ``start-app.sh`` and ``stop-app.sh``.
 8. Setup your database by running: ``rake db:migrate RAILS_ENV=production``. If there is an error, you might need to execute the following command, to
 set an encryption key: ``EDITOR="mate --wait" bin/rails credentials:edit``
 9. Make sure that the environment variable ``SECRET_KEY_BASE`` has a value.
