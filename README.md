@@ -32,17 +32,19 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 1. Make sure you have Ruby installed. For an installation guide, check here: [Ruby installation guide](https://guides.rubyonrails.org/getting_started.html#installing-rails)
 2. If you haven't installed the Rails Gem, you can run the following command: ``gem install rails``
 3. Download the newest release and unzip it in a location of your own choice.
-4. Configure your database connection by setting the following environment variables: ``EVERYDOCS_DB_ADAPTER`` (e.g. mysql2), ``EVERYDOCS_DB_NAME``, ``EVERYDOCS_DB_USER``, ``EVERYDOCS_DB_PASSWORD``, ``EVERYDOCS_DB_HOST``, ``EVERYDOCS_DB_PORT``
-5. Configure the folder where documents are stored in config/settings.yml
+4. Configure your database connection by setting the following environment variables: ``EVERYDOCS_DB_ADAPTER`` (e.g. mysql2), ``EVERYDOCS_DB_NAME``, ``EVERYDOCS_DB_USER``, ``EVERYDOCS_DB_PASSWORD``, ``EVERYDOCS_DB_HOST``, ``EVERYDOCS_DB_PORT``.
+   You can do so by editing the ``start-app.sh`` script.
+5. Configure the folder where documents are stored in config/settings.yml.
+   The default location is ``/var/everydocs-files/``.
 6. Install required dependencies by running: ``bundle install``
 7. You might want to change the port of the application in start-app.sh.
 8. Setup your database by running: ``rake db:migrate RAILS_ENV=production``. If there is an error, you might need to execute the following command, to
 set an encryption key: ``EDITOR="mate --wait" bin/rails credentials:edit``
 9. Make sure that the environment variable ``SECRET_KEY_BASE`` has a value.
-   If not, you can generate a key by running ``rake secret``.
+   If not, you can generate a key by running ``rake secret`` and set it by editing the ``start-app.sh`` script.
    In case your not using production as your environment, the environment variable ``SECRET_KEY_BASE_DEV`` or ``SECRET_KEY_BASE_TEST`` needs to be set.
 10. Start your Rails server: ``./start-app.sh``
-11. Access the application on http://localhost:1234 or configure any kind of proxy forwarding in your webserver. If you run this application under an URL, make sure to add this URL to config.hosts at the end of the file ./config/environments/development.rb.
+11. Access the application on http://localhost:5678 or configure any kind of proxy forwarding in your webserver.
 12. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
 13. Stop the application: ``./stop-app.sh``
 
