@@ -21,5 +21,9 @@ test:
   database: db/test.sqlite3
 
 production:
-  <<: *default
-  database: db/production.sqlite3
+  adapter: <%= ENV['EVERYDOCS_DB_ADAPTER'] %>
+  database: <%= ENV['EVERYDOCS_DB_NAME'] %>
+  username: <%= ENV['EVERYDOCS_DB_USER'] %>
+  password: <%= ENV['EVERYDOCS_DB_PASSWORD'] %>
+  host: <%= ENV['EVERYDOCS_DB_HOST'] %>
+  port: <%= ENV['EVERYDOCS_DB_PORT'] %>
