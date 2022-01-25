@@ -33,7 +33,7 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 
 Start the container and make the API accessible on port ``8080`` by running the following commands. Of course, you can change the port in the last command.
 Also make sure to check the folder that is mounted into the container. In this case, the uploaded files are stored in ``/data/everydocs`` on the host.
-<pre>docker run -p 127.0.0.1:8080:5678/tcp -e SECRET_KEY_BASE="$(openssl rand -hex 64)" -v /data/everydocs:/var/everydocs-files everydocs</pre>
+<pre>docker run -p 127.0.0.1:8080:5678/tcp -e SECRET_KEY_BASE="$(openssl rand -hex 64)" -v /data/everydocs:/var/everydocs-files jonashellmann/everydocs</pre>
 
 You can configure the application by using the following environment variables:
 - ``EVERYDOCS_DB_ADAPTER``: The database adapter (default: ``mysql2``)
