@@ -156,7 +156,7 @@ GEM
       net-protocol
       timeout
     nio4r (2.5.8)
-    nokogiri (1.13.3-x86_64-linux)
+    nokogiri (1.13.4-x86_64-linux)
       racc (~> 1.4)
     pdf-reader (2.9.2)
       Ascii85 (~> 1.0)
