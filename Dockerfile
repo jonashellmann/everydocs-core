@@ -13,6 +13,7 @@ ENV EVERYDOCS_DB_PORT 3306
 
 COPY . .
 RUN rm -f Gemfile.lock
+RUN rm -rf .git/
 RUN bundle install
 
 RUN apt-get update
