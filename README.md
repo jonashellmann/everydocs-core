@@ -1,6 +1,6 @@
 # EveryDocs Core
 
-[![Build Status](https://img.shields.io/github/workflow/status/jonashellmann/everydocs-core/Ruby?style=flat-square)](https://github.com/jonashellmann/everydocs-core/actions?query=workflow%3ARuby)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/jonashellmann/everydocs-core/ruby.yml??branch=main&style=flat-square)](https://github.com/jonashellmann/everydocs-core/actions?query=workflow%3ARuby)
 ![Lines of Code](https://img.shields.io/tokei/lines/github/jonashellmann/everydocs-core?style=flat-square)
 ![License](https://img.shields.io/github/license/jonashellmann/everydocs-core?style=flat-square)
 ![GitHub Repo
