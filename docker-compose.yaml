@@ -1,0 +1,40 @@
+version: '2.1'
+
+services:
+  everydocs_core:
+    image: jonashellmann/everydocs:latest
+    environment:
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - EVERYDOCS_DB_ADAPTER=mysql2
+      - EVERYDOCS_DB_NAME=everydocs
+      - EVERYDOCS_DB_USER=everydocs
+      - EVERYDOCS_DB_PASSWORD=PASSWORD123!
+      - EVERYDOCS_DB_HOST=everydocs_db
+      - EVERYDOCS_DB_PORT=3306
+    volumes:
+      - /data/everydocs:/var/everydocs-files
+    ports:
+      - '8080:5678'
+
+  everydocs_web:
+    image: jonashellmann/everydocs-web:latest
+    volumes:
+      - /path/to/config.js:/usr/local/apache2/htdocs/config.js
+    ports:
+      - '80:80'
+      - '443:443'
+
+  everydocs_db:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=everydocs
+      - MYSQL_USER=everydocs
+      - MYSQL_PASSWORD=PASSWORD123!
+    volumes:
+      - /data/everydocs-db:/var/lib/mysql
+    healthcheck:
+      test: "mysqladmin ping -hmariadbhost"
+      interval: 2s
+      timeout: 5s
+      retries: 30

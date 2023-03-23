@@ -29,6 +29,10 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 
 ## Installation
 
+### Docker Compose (recommended)
+
+// TODO: Write documentation
+
 ### Docker (recommended)
 
 Start the container and make the API accessible on port ``8080`` by running the following commands. Of course, you can change the port in the last command.
