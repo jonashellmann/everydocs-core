@@ -29,6 +29,13 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 
 ## Installation
 
+### Docker Compose (recommended)
+
+The easiest way to get started is to use Docker Compose. The ``docker-compose.yaml`` creates three containers for the database, Everydocs Core (available on port 5678) and the web interface (available on port 8080 and 8443).
+
+You may simply need to changed the URL in ``./everydocs-web-config.js`` where EveryDocs Core will be accessible and execute the following command while being inside the source folder of this repository:
+<pre>SECRET_KEY_BASE="$(openssl rand -hex 64)" docker-compose up --build</pre>
+
 ### Docker (recommended)
 
 Start the container and make the API accessible on port ``8080`` by running the following commands. Of course, you can change the port in the last command.
