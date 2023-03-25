@@ -40,10 +40,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", 'mysqladmin', 'ping', '-h', 'everydocs_db', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD' ]
-      interval: 2s
+      test: mysqladmin ping -h everydocs_db -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      start_period: 5s
+      interval: 5s
       timeout: 5s
-      retries: 30
+      retries: 10
 
 volumes:
     db_data:
