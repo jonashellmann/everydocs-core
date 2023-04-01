@@ -1,6 +1,5 @@
 class DocumentsController < ApplicationController
   before_action :set_document, only: [:show, :download, :update, :destroy]
-  skip_before_action :authorize_request, only: :download
 
   # GET /documents
   def index
