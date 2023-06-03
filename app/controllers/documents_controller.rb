@@ -19,6 +19,13 @@ class DocumentsController < ApplicationController
       @documents = @documents.select { |d| (d.title.downcase.delete(' ').include?(@search) or (!d.description.nil? and d.description.downcase.delete(' ').include?(@search)) or (!d.document_text.nil? and d.document_text.downcase.delete(' ').include?(@search)))}
     end
 
+    @start_index = 0
+    if (!params[:page].blank?)
+      @start_index = (convert_to_int(params[:page]) - 1) * 20
+    end
+    @end_index = @start_index + 19
+    @documents = @documents[@start_index..@end_index]
+
     json_response(@documents)
   end
 
