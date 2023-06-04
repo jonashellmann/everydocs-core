@@ -16,4 +16,5 @@ Rails.application.routes.draw do
   resources :tags
 
   get 'search/suggestions/:text', to: 'search#suggestions'
+  get 'version', to: 'version#version'
 end

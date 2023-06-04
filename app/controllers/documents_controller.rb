@@ -105,7 +105,7 @@ class DocumentsController < ApplicationController
   def page_count
     @document_count = @documents.length()
     @page_count = (@document_count/20.to_f).ceil
-    json_response(@page_count)
+    json_response(page_count: @page_count)
   end
 
   private
