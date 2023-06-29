@@ -39,7 +39,7 @@ class DocumentsController < ApplicationController
           @file_text = ""
         end
 
-        rescue PDF::Reader::MalformedPDFError
+        rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
           @file_text = ""
         end
     end
