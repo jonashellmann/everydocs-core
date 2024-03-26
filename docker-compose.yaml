@@ -30,7 +30,7 @@ services:
       - '8443:443'
 
   everydocs_db:
-    image: mariadb:10
+    image: mariadb:10.7.3
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=password
