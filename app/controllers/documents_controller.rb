@@ -18,30 +18,36 @@ class DocumentsController < ApplicationController
   def create
     @file = params[:document]
     @file_text = ""
+    @encrypted = current_user.secret_key.present?
 
     if @file.blank?
       @file_name = nil
     else
       @file_name = SecureRandom.uuid + '.pdf'
-      File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
 
-      begin
-        reader = PDF::Reader.new(Settings.document_folder + @file_name)
-        reader.pages.each do |page|
-          @file_text = @file_text + page.text
-        end
+      if @encrpyted
 
-        @file_text.delete!("\r\n")
-        @file_text.delete!("\n")
-        @file_text.delete!(' ')
+      else
+        File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
 
-        if @file_text.bytesize > 65535
-          @file_text = ""
-        end
+        begin
+          reader = PDF::Reader.new(Settings.document_folder + @file_name)
+          reader.pages.each do |page|
+            @file_text = @file_text + page.text
+          end
 
-        rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
-          @file_text = ""
-        end
+          @file_text.delete!("\r\n")
+          @file_text.delete!("\n")
+          @file_text.delete!(' ')
+
+          if @file_text.bytesize > 65535
+            @file_text = ""
+          end
+
+          rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
+            @file_text = ""
+          end
+      end
     end
 
     @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
@@ -57,6 +63,7 @@ class DocumentsController < ApplicationController
       "state" => @state,
       "person" => @person,
       "document_url" => @file_name
+      "encrpyted_flag" => @encrpyted
     }
 
     @document = current_user.documents.create!(@params)
