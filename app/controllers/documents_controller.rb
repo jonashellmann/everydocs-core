@@ -65,7 +65,7 @@ class DocumentsController < ApplicationController
       "folder" => @folder,
       "state" => @state,
       "person" => @person,
-      "document_url" => @file_name
+      "document_url" => @file_name,
       "encrpyted_flag" => @encrpyted
     }
 
