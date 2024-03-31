@@ -47,10 +47,9 @@ class DocumentsController < ApplicationController
           if @file_text.bytesize > 65535
             @file_text = ""
           end
-
-          rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
-            @file_text = ""
-          end
+        rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
+          @file_text = ""
+        end
       end
     end
 
@@ -81,7 +80,21 @@ class DocumentsController < ApplicationController
 
   # GET /documents/file/:id
   def download
-    send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition => 'attachment'
+    if current_user.secret_key.present?
+      temp_file = Tempfile.new('decrypted_file')
+      
+      begin
+        temp_file.write(decrypted_content)
+        temp_file.rewind
+        send_file temp_file.path, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachement'
+      ensure
+        temp_file.close
+        temp_file.unlink
+      end
+    else
+      send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachment'
+  
+    end
   end
 
   # PUT /documents/:id
