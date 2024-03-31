@@ -80,11 +80,15 @@ class DocumentsController < ApplicationController
 
   # GET /documents/file/:id
   def download
-    if current_user.secret_key.present?
+    if @document.encrypted_flag
+      cipher = OpenSSL::Cipher.new('AES-256-CBC')
+      cipher.decrpyt
+      cipher.key = current_user.secret_key
+      decrypted_data = cipher.update(File.read(Settings.document_folder + @document.document_url)) + cipher.final
       temp_file = Tempfile.new('decrypted_file')
       
       begin
-        temp_file.write(decrypted_content)
+        temp_file.write(decrypted_data)
         temp_file.rewind
         send_file temp_file.path, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachement'
       ensure
