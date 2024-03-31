@@ -34,6 +34,7 @@ gem 'pdf-reader'
 gem 'webrick', '~> 1.7'
 
 gem 'rack-cors'
+gem 'openssl'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
