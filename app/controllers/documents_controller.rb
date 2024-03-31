@@ -26,7 +26,11 @@ class DocumentsController < ApplicationController
       @file_name = SecureRandom.uuid + '.pdf'
 
       if @encrpyted
-
+        cipher = OpenSSL:Cipher.new('AES-256-CBC')
+        cipher.encrypt
+        cipher.key = current_user.secret_key
+        encrpyted_data = cipher.update(@file.read) + cipher.final
+        File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(encrypted_data)}
       else
         File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
 
