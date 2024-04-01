@@ -27,13 +27,13 @@ class DocumentsController < ApplicationController
 
       if @encrypted
         lockbox = Lockbox.new(key: current_user.secret_key)
-        temp_file = Tempfile.new('uploaded_file')
+        temp_file = Tempfile.new('uploaded_file', binmode: true)
 
         begin
           temp_file.write(@file.read)
           temp_file.rewind
           encrpyted_data = lockbox.encrypt(File.binread(temp_file.path))
-          File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(encrypted_data)}
+          File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.binwrite(encrypted_data)}
         ensure
           temp_file.close
           temp_file.unlink
@@ -90,7 +90,7 @@ class DocumentsController < ApplicationController
     if @document.encrypted_flag
       lockbox = Lockbox.new(key: current_user.secret_key)
       decrypted_data = lockbox.decrypt(File.binread(Settings.document_folder + @document.document_url))
-      temp_file = Tempfile.new('decrypted_file')
+      temp_file = Tempfile.new('decrypted_file', binmode: true)
       
       begin
         temp_file.write(decrypted_data)
