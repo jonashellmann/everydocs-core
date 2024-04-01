@@ -25,12 +25,19 @@ class DocumentsController < ApplicationController
     else
       @file_name = SecureRandom.uuid + '.pdf'
 
-      if @encrpyted
-        cipher = OpenSSL:Cipher.new('AES-256-CBC')
-        cipher.encrypt
-        cipher.key = current_user.secret_key
-        encrpyted_data = cipher.update(@file.read) + cipher.final
-        File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(encrypted_data)}
+      if @encrypted
+        lockbox = Lockbox.new(key: current_user.secret_key)
+        temp_file = Tempfile.new('uploaded_file')
+
+        begin
+          temp_file.write(@file.read)
+          temp_file.rewind
+          encrpyted_data = lockbox.encrypt(File.binread(temp_file.path))
+          File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(encrypted_data)}
+        ensure
+          temp_file.close
+          temp_file.unlink
+        end
       else
         File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
 
@@ -66,7 +73,7 @@ class DocumentsController < ApplicationController
       "state" => @state,
       "person" => @person,
       "document_url" => @file_name,
-      "encrpyted_flag" => @encrpyted
+      "encrypted_flag" => @encrypted
     }
 
     @document = current_user.documents.create!(@params)
@@ -81,10 +88,8 @@ class DocumentsController < ApplicationController
   # GET /documents/file/:id
   def download
     if @document.encrypted_flag
-      cipher = OpenSSL::Cipher.new('AES-256-CBC')
-      cipher.decrpyt
-      cipher.key = current_user.secret_key
-      decrypted_data = cipher.update(File.read(Settings.document_folder + @document.document_url)) + cipher.final
+      lockbox = Lockbox.new(key: current_user.secret_key)
+      decrypted_data = lockbox.decrypt(File.binread(Settings.document_folder + @document.document_url))
       temp_file = Tempfile.new('decrypted_file')
       
       begin
