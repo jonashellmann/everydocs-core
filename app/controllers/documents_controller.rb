@@ -32,7 +32,7 @@ class DocumentsController < ApplicationController
         begin
           temp_file.write(@file.read)
           temp_file.rewind
-          encrpyted_data = lockbox.encrypt(File.binread(temp_file.path))
+          encrypted_data = lockbox.encrypt(File.binread(temp_file.path))
           File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.binwrite(encrypted_data)}
         ensure
           temp_file.close
