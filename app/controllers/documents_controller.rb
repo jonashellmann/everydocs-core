@@ -27,19 +27,12 @@ class DocumentsController < ApplicationController
 
       if @encrypted
         lockbox = Lockbox.new(key: current_user.secret_key)
-        temp_file = Tempfile.new('uploaded_file', binmode: true)
 
-        begin
-          temp_file.write(@file.read)
-          temp_file.rewind
-          encrypted_data = lockbox.encrypt(File.binread(temp_file.path))
-          File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.binwrite(encrypted_data)}
-        ensure
-          temp_file.close
-          temp_file.unlink
-        end
+        data = @file.read
+        encrypted_data = lockbox.encrypt(data)
+        File.write(Settings.document_folder + @file_name, encrypted_data, mode: 'w+b')
       else
-        File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
+        File.write(Settings.document_folder + @file_name, data, mode: 'w+b')
 
         begin
           reader = PDF::Reader.new(Settings.document_folder + @file_name)
@@ -89,20 +82,10 @@ class DocumentsController < ApplicationController
   def download
     if @document.encrypted_flag
       lockbox = Lockbox.new(key: current_user.secret_key)
-      decrypted_data = lockbox.decrypt(File.binread(Settings.document_folder + @document.document_url))
-      temp_file = Tempfile.new('decrypted_file', binmode: true)
-      
-      begin
-        temp_file.write(decrypted_data)
-        temp_file.rewind
-        send_file temp_file.path, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachement'
-      ensure
-        temp_file.close
-        temp_file.unlink
-      end
+      decrypted_data = lockbox.decrypt(File.read(Settings.document_folder + @document.document_url))
+      send_data decrypted_data, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachement'
     else
-      send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachment'
-  
+      send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachment' 
     end
   end
 
