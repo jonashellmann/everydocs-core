@@ -16,6 +16,10 @@ EveryDocs Core is the server-side part of EveryDocs. This project contains a [we
 - Organizing documents in folders and subfolders
 - Adding people and processing states to documents
 - Extracting the content from the PDF file for full-text search
+- Encrypted storage of PDF files on disk
+  - Encryption is automatically activated for all newly created users after upgrading to EveryDocs 1.5.0
+  - For all other users encryption can be activated by adding a `secret_key` (generated for example by `openssl rand -hex 32`) and changing the flag `encryption_actived_flag` in the `users` database table for each user
+  - If encrpytion is actived for a user, then there will be no content extraction and therefore no full-text search for this document
 - Searching all documents by title, description or content of the document
 - Creating new accounts (be aware that at the current moment everybody who knows the URL can create new accounts)
 - Authentication via JsonWebToken

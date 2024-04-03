@@ -18,30 +18,39 @@ class DocumentsController < ApplicationController
   def create
     @file = params[:document]
     @file_text = ""
+    @encrypted = current_user.encryption_actived_flag? and current_user.secret_key.present?
 
     if @file.blank?
       @file_name = nil
     else
       @file_name = SecureRandom.uuid + '.pdf'
-      File.open(Settings.document_folder + @file_name, 'w+b') {|f| f.write(@file.read)}
 
-      begin
-        reader = PDF::Reader.new(Settings.document_folder + @file_name)
-        reader.pages.each do |page|
-          @file_text = @file_text + page.text
-        end
+      if @encrypted
+        lockbox = Lockbox.new(key: current_user.secret_key)
 
-        @file_text.delete!("\r\n")
-        @file_text.delete!("\n")
-        @file_text.delete!(' ')
+        data = @file.read
+        encrypted_data = lockbox.encrypt(data)
+        File.write(Settings.document_folder + @file_name, encrypted_data, mode: 'w+b')
+      else
+        File.write(Settings.document_folder + @file_name, data, mode: 'w+b')
 
-        if @file_text.bytesize > 65535
-          @file_text = ""
-        end
+        begin
+          reader = PDF::Reader.new(Settings.document_folder + @file_name)
+          reader.pages.each do |page|
+            @file_text = @file_text + page.text
+          end
 
+          @file_text.delete!("\r\n")
+          @file_text.delete!("\n")
+          @file_text.delete!(' ')
+
+          if @file_text.bytesize > 65535
+            @file_text = ""
+          end
         rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
           @file_text = ""
         end
+      end
     end
 
     @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
@@ -56,7 +65,8 @@ class DocumentsController < ApplicationController
       "folder" => @folder,
       "state" => @state,
       "person" => @person,
-      "document_url" => @file_name
+      "document_url" => @file_name,
+      "encrypted_flag" => @encrypted
     }
 
     @document = current_user.documents.create!(@params)
@@ -70,7 +80,13 @@ class DocumentsController < ApplicationController
 
   # GET /documents/file/:id
   def download
-    send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition => 'attachment'
+    if @document.encrypted_flag
+      lockbox = Lockbox.new(key: current_user.secret_key)
+      decrypted_data = lockbox.decrypt(File.read(Settings.document_folder + @document.document_url))
+      send_data decrypted_data, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachement'
+    else
+      send_file Settings.document_folder + @document.document_url, :filename=>@document.title + ".pdf", :type=>"application/pdf", :x_sendfile=>true, :disposition=>'attachment' 
+    end
   end
 
   # PUT /documents/:id

@@ -1,6 +1,6 @@
 FROM ruby:3.0.2
 
-MAINTAINER Jonas Hellmann <mail@jonas-hellmann.de>
+LABEL org.opencontainers.image.authors="Jonas Hellmann <mail@jonas-hellmann.de>"
 
 RUN mkdir -p /var/everydocs-files
 WORKDIR /usr/src/app
