@@ -18,7 +18,7 @@ class DocumentsController < ApplicationController
   def create
     @file = params[:document]
     @file_text = ""
-    @encrypted = current_user.secret_key.present?
+    @encrypted = current_user.encryption_activated_flag and current_user.secret_key.present?
 
     if @file.blank?
       @file_name = nil
