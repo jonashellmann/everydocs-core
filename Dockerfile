@@ -4,12 +4,12 @@ LABEL org.opencontainers.image.authors="Jonas Hellmann <mail@jonas-hellmann.de>"
 
 RUN mkdir -p /var/everydocs-files
 WORKDIR /usr/src/app
-ENV RAILS_ENV production
-ENV EVERYDOCS_DB_ADAPTER mysql2
-ENV EVERYDOCS_DB_NAME everydocs
-ENV EVERYDOCS_DB_USER everydocs
-ENV EVERYDOCS_DB_HOST localhost
-ENV EVERYDOCS_DB_PORT 3306
+ENV RAILS_ENV=production
+ENV EVERYDOCS_DB_ADAPTER=mysql2
+ENV EVERYDOCS_DB_NAME=everydocs
+ENV EVERYDOCS_DB_USER=everydocs
+ENV EVERYDOCS_DB_HOST=localhost
+ENV EVERYDOCS_DB_PORT=3306
 
 COPY . .
 RUN rm -f Gemfile.lock
