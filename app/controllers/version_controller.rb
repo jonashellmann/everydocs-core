@@ -3,7 +3,7 @@ class VersionController < ApplicationController
 
   # GET /version
   def version
-    version = '1.5.6'
+    version = '1.5.7'
     json_response(version: version)
   end
 end
