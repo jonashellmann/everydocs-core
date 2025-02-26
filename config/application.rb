@@ -25,5 +25,6 @@ module EverydocsCore
     
     # Deprecated since Rails version 6
     # Rails.application.config.active_record.sqlite3.represent_boolean_as_integer = true
+    config.secrets = config_for(:secrets)
   end
 end
