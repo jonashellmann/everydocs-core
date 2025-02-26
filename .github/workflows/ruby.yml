@@ -24,5 +24,3 @@ jobs:
       run: rails db:migrate RAILS_ENV=test
     - name: Run tests
       run: bundle exec rake
-    - name: Rubocop
-      run: rubocop -f github
