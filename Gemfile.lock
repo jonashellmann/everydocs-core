@@ -295,7 +295,7 @@ DEPENDENCIES
   mysql2 (~> 0.5)
   pdf-reader
   rack-cors
-  rails
+  rails (~> 8.0.1)
   sassc-rails
   sdoc (~> 1.1.0)
   spring
