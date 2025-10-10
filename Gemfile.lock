@@ -177,7 +177,7 @@ GEM
       date
       stringio
     racc (1.8.1)
-    rack (3.2.2)
+    rack (3.2.3)
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
