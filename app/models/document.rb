@@ -8,6 +8,7 @@ class Document < ActiveRecord::Base
   has_many :tags, through: :documenttags
 
   validates_presence_of :title, :document_date, :user, :document_url
+  validates :encrypted_flag, inclusion: { in: [true, false] }
 
   def as_json(_options = {})
     super include: {

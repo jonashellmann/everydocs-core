@@ -1,21 +1,23 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
-  description: MyText
+  title: Non Encrypted Document
+  description: A non-encrypted test document
   document_date: 2019-05-25
-  document_url: MyString
-  version: 9.99
+  document_url: test1.pdf
+  version: 1.0
   folder_id: 
-  user_id: 
+  user_id: one
   state_id: 
+  encrypted_flag: false
 
 two:
-  title: MyString
-  description: MyText
+  title: Encrypted Document
+  description: An encrypted test document
   document_date: 2019-05-25
-  document_url: MyString
-  version: 9.99
+  document_url: test2.pdf
+  version: 1.0
   folder_id: 
-  user_id: 
+  user_id: two
   state_id: 
+  encrypted_flag: true

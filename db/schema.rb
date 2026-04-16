@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_28_071907) do
+ActiveRecord::Schema.define(version: 2024_03_31_170416) do
 
   create_table "documents", force: :cascade do |t|
     t.string "title"
@@ -25,6 +25,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.integer "person_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "encrypted_flag", default: false
     t.index ["folder_id"], name: "index_documents_on_folder_id"
     t.index ["person_id"], name: "index_documents_on_person_id"
     t.index ["state_id"], name: "index_documents_on_state_id"
@@ -47,7 +48,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["folder_id"], name: "index_folders_on_folder_id"
-    t.index ["name"], name: "index_folders_on_name", unique: true
+    t.index ["name", "user_id", "folder_id"], name: "index_folders_on_name_and_user_id_and_folder_id", unique: true
     t.index ["user_id"], name: "index_folders_on_user_id"
   end
 
@@ -63,7 +64,7 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_states_on_name", unique: true
+    t.index ["name", "user_id"], name: "index_states_on_name_and_user_id", unique: true
   end
 
   create_table "tags", force: :cascade do |t|
@@ -80,6 +81,8 @@ ActiveRecord::Schema.define(version: 2019_05_28_071907) do
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "secret_key", default: nil
+    t.boolean "encryption_actived_flag", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
