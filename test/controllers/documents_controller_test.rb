@@ -9,7 +9,7 @@ class DocumentsControllerTest < ActionController::TestCase
     @token_without_encryption = JsonWebToken.encode(user_id: @non_encrypted_user.id)
     @token_with_encryption = JsonWebToken.encode(user_id: @encrypted_user.id)
     
-    @test_pdf_content = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n192\n%%EOF"
+    @test_pdf_content = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(Hello World) Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000208 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n310\n%%EOF"
   end
 
   test "should create document without encryption for non-encrypted user" do
@@ -84,10 +84,10 @@ class DocumentsControllerTest < ActionController::TestCase
     temp_file.unlink
   end
 
-  test "should create document without file (empty document)" do
+  test "should return 422 when document is not provided" do
     @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
     
-    assert_difference('Document.count') do
+    assert_no_difference('Document.count') do
       post :create, params: {
         title: 'Empty Document',
         description: 'Document without file',
@@ -95,12 +95,122 @@ class DocumentsControllerTest < ActionController::TestCase
       }
     end
     
+    assert_response :unprocessable_entity
+    
+    json_response = JSON.parse(@response.body)
+    assert_includes json_response['message'], 'required'
+  end
+
+  test "should return 422 when document file is empty" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    temp_file = Tempfile.new(['empty', '.pdf'])
+    temp_file.write('')
+    temp_file.rewind
+    
+    uploaded_file = Rack::Test::UploadedFile.new(temp_file.path, 'application/pdf')
+    
+    assert_no_difference('Document.count') do
+      post :create, params: {
+        document: uploaded_file,
+        title: 'Empty File Document',
+        description: 'Empty file',
+        document_date: Date.today.to_s
+      }
+    end
+    
+    assert_response :unprocessable_entity
+    
+    json_response = JSON.parse(@response.body)
+    assert_includes json_response['message'], 'empty'
+    
+    temp_file.close
+    temp_file.unlink
+  end
+
+  test "should return 422 when document is not a PDF" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    temp_file = Tempfile.new(['test', '.txt'])
+    temp_file.write('This is a text file, not a PDF')
+    temp_file.rewind
+    
+    uploaded_file = Rack::Test::UploadedFile.new(temp_file.path, 'text/plain')
+    
+    assert_no_difference('Document.count') do
+      post :create, params: {
+        document: uploaded_file,
+        title: 'Text Document',
+        description: 'This is not a PDF',
+        document_date: Date.today.to_s
+      }
+    end
+    
+    assert_response :unprocessable_entity
+    
+    json_response = JSON.parse(@response.body)
+    assert_includes json_response['message'], 'PDF'
+    
+    temp_file.close
+    temp_file.unlink
+  end
+
+  test "non-encrypted document should have document_text extracted" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    temp_file = Tempfile.new(['test', '.pdf'])
+    temp_file.write(@test_pdf_content)
+    temp_file.rewind
+    
+    uploaded_file = Rack::Test::UploadedFile.new(temp_file.path, 'application/pdf')
+    
+    assert_difference('Document.count') do
+      post :create, params: {
+        document: uploaded_file,
+        title: 'Document With Text',
+        description: 'Test text extraction',
+        document_date: Date.today.to_s
+      }
+    end
+    
     assert_response :created
     
     new_document = Document.last
-    assert_equal 'Empty Document', new_document.title
-    assert_nil new_document.document_url
     assert_equal false, new_document.encrypted_flag
+    assert_not_empty new_document.document_text
+    
+    File.delete(Settings.document_folder + new_document.document_url) if File.exist?(Settings.document_folder + new_document.document_url)
+    temp_file.close
+    temp_file.unlink
+  end
+
+  test "encrypted document should have empty document_text" do
+    @request.headers['Authorization'] = "Bearer #{@token_with_encryption}"
+    
+    temp_file = Tempfile.new(['test', '.pdf'])
+    temp_file.write(@test_pdf_content)
+    temp_file.rewind
+    
+    uploaded_file = Rack::Test::UploadedFile.new(temp_file.path, 'application/pdf')
+    
+    assert_difference('Document.count') do
+      post :create, params: {
+        document: uploaded_file,
+        title: 'Encrypted Document With Text',
+        description: 'Encrypted, text should be empty',
+        document_date: Date.today.to_s
+      }
+    end
+    
+    assert_response :created
+    
+    new_document = Document.last
+    assert_equal true, new_document.encrypted_flag
+    assert_empty new_document.document_text
+    
+    File.delete(Settings.document_folder + new_document.document_url) if File.exist?(Settings.document_folder + new_document.document_url)
+    temp_file.close
+    temp_file.unlink
   end
 
   test "should download non-encrypted document" do

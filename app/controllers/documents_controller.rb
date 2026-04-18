@@ -21,35 +21,52 @@ class DocumentsController < ApplicationController
     @encrypted = current_user.encryption_actived_flag? and current_user.secret_key.present?
 
     if @file.blank?
-      @file_name = nil
+      json_response({ message: "Document file is required" }, :unprocessable_entity)
+      return
+    end
+
+    data = @file.read
+    if data.nil? || data.empty?
+      json_response({ message: "Document file cannot be empty" }, :unprocessable_entity)
+      return
+    end
+
+    content_type = @file.content_type.to_s
+    original_filename = @file.original_filename.to_s
+    is_pdf = content_type == 'application/pdf' || 
+             content_type == 'application/octet-stream' ||
+             original_filename.end_with?('.pdf')
+
+    unless is_pdf
+      json_response({ message: "Only PDF documents are allowed" }, :unprocessable_entity)
+      return
+    end
+
+    @file_name = SecureRandom.uuid + '.pdf'
+
+    if @encrypted
+      lockbox = Lockbox.new(key: current_user.secret_key)
+      encrypted_data = lockbox.encrypt(data)
+      File.write(Settings.document_folder + @file_name, encrypted_data, mode: 'w+b')
+      @file_text = ""
     else
-      @file_name = SecureRandom.uuid + '.pdf'
-      data = @file.read
+      File.write(Settings.document_folder + @file_name, data, mode: 'w+b')
 
-      if @encrypted
-        lockbox = Lockbox.new(key: current_user.secret_key)
+      begin
+        reader = PDF::Reader.new(Settings.document_folder + @file_name)
+        reader.pages.each do |page|
+          @file_text = @file_text + page.text
+        end
 
-        encrypted_data = lockbox.encrypt(data)
-        File.write(Settings.document_folder + @file_name, encrypted_data, mode: 'w+b')
-      else
-        File.write(Settings.document_folder + @file_name, data, mode: 'w+b')
+        @file_text.delete!("\r\n")
+        @file_text.delete!("\n")
+        @file_text.delete!(' ')
 
-        begin
-          reader = PDF::Reader.new(Settings.document_folder + @file_name)
-          reader.pages.each do |page|
-            @file_text = @file_text + page.text
-          end
-
-          @file_text.delete!("\r\n")
-          @file_text.delete!("\n")
-          @file_text.delete!(' ')
-
-          if @file_text.bytesize > 65535
-            @file_text = ""
-          end
-        rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
+        if @file_text.bytesize > 65535
           @file_text = ""
         end
+      rescue PDF::Reader::MalformedPDFError, PDF::Reader::EncryptedPDFError
+        @file_text = ""
       end
     end
 
