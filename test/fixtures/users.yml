@@ -1,11 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
-  password_digest: MyString
-  email: MyString
+  name: Non Encrypted User
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  email: non_encrypted@example.com
+  encryption_actived_flag: false
+  secret_key: null
 
 two:
-  name: MyString
-  password_digest: MyString
-  email: MyString
+  name: Encrypted User
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  email: encrypted@example.com
+  encryption_actived_flag: true
+  secret_key: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef

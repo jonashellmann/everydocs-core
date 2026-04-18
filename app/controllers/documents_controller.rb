@@ -24,11 +24,11 @@ class DocumentsController < ApplicationController
       @file_name = nil
     else
       @file_name = SecureRandom.uuid + '.pdf'
+      data = @file.read
 
       if @encrypted
         lockbox = Lockbox.new(key: current_user.secret_key)
 
-        data = @file.read
         encrypted_data = lockbox.encrypt(data)
         File.write(Settings.document_folder + @file_name, encrypted_data, mode: 'w+b')
       else
