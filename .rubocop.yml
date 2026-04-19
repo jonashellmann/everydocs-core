@@ -1,0 +1,121 @@
+require:
+  - rubocop-rails
+  - rubocop-performance
+
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'db/schema.rb'
+    - 'db/migrate/*.rb'
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'log/**/*'
+
+Layout/LineLength:
+  Max: 120
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/MethodCallWithoutArgsParentheses:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/ClassLength:
+  Max: 150
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Rails:
+  Enabled: true
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: true
+
+Rails/InverseOf:
+  Enabled: true
+
+Rails/UnknownEnv:
+  Enabled: true
+
+Rails/RedundantReceiverInWithOptions:
+  Enabled: false
+
+Performance:
+  Enabled: true
+
+Performance/Casecmp:
+  Enabled: true
+
+Performance/RedundantMatch:
+  Enabled: true
+
+Performance/ReverseEach:
+  Enabled: true
+
+Naming/PredicateName:
+  Enabled: true
+  ForbiddenPrefixes:
+    - is_
+    - are_
+  AllowedMethods:
+    - is_a?
+    - kind_of?
+    - instance_of?
+
+Naming/FileName:
+  Exclude:
+    - 'config/initializers/*'
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
+Style/ExplicitBlockArgument:
+  Enabled: true
+
+Style/CollectionCompact:
+  Enabled: true
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: true
+
+Style/NilLambda:
+  Enabled: true
+
+Style/RedundantArgument:
+  Enabled: true
+
+Style/StringChars:
+  Enabled: true
+
+Style/SwapValue:
+  Enabled: true
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Lint/NumberConversion:
+  Enabled: true
