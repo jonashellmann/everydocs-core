@@ -12,7 +12,7 @@ services:
       - EVERYDOCS_DB_ADAPTER=mysql2
       - EVERYDOCS_DB_NAME=everydocs
       - EVERYDOCS_DB_USER=everydocs
-      - EVERYDOCS_DB_PASSWORD=PASSWORD123!
+      - EVERYDOCS_DB_PASSWORD=${MYSQL_PASSWORD}
       - EVERYDOCS_DB_HOST=everydocs_db
       - EVERYDOCS_DB_PORT=3306
     volumes:
@@ -33,10 +33,10 @@ services:
     image: mariadb:10.7.3
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=everydocs
       - MYSQL_USER=everydocs
-      - MYSQL_PASSWORD=PASSWORD123!
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -47,4 +47,4 @@ services:
       retries: 10
 
 volumes:
-    db_data:
+  db_data:
