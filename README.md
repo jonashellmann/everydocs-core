@@ -76,7 +76,15 @@ The easiest way to get started is to use Docker Compose. The ``docker-compose.ya
    - Web UI: http://localhost:8080
    - API: http://localhost:5678
 
-#### Environment Variables
+#### Docker Compose Ports
+
+| Port | Service | Description |
+|------|---------|-------------|
+| 5678 | API | EveryDocs Core API |
+| 8080 | Web UI | HTTP Web Interface |
+| 8443 | Web UI | HTTPS Web Interface |
+
+#### Docker Compose Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
@@ -86,29 +94,115 @@ The easiest way to get started is to use Docker Compose. The ``docker-compose.ya
 
 **⚠️ Security Warning:** Never use weak passwords or the example values in production.
 
-#### Generating Strong Secrets
+### Manual Installation (Advanced)
 
-```bash
-# Generate SECRET_KEY_BASE
-openssl rand -hex 64
+If you prefer to run EveryDocs directly on your host system (not in Docker), follow these steps.
 
-# Generate strong MySQL passwords
-openssl rand -hex 32
+#### Prerequisites
 
-# Or use a more complex password
-openssl rand -base64 32
-```
+- Ruby 3.1+
+- Bundler
+- MySQL or MariaDB database
+- Node.js (for asset compilation)
 
-#### Environment File Configuration
+#### Quick Start
 
-The `.env` file is **ignored by git** (listed in `.gitignore`), so your secrets will never be committed.
+1. **Install dependencies:**
+   ```bash
+   bundle install
+   ```
 
-Use the provided `.env.example` as a template:
-```bash
-cp .env.example .env
-```
+2. **Copy the environment template:**
+   ```bash
+   cp .env.example .env
+   ```
 
-### Docker (recommended)
+3. **Edit `.env` and configure all required variables:**
+   ```bash
+   # Required secrets
+   SECRET_KEY_BASE=your_secret_key_base_here
+   MYSQL_PASSWORD=your_mysql_password
+   
+   # Database connection
+   EVERYDOCS_DB_ADAPTER=mysql2
+   EVERYDOCS_DB_NAME=everydocs
+   EVERYDOCS_DB_USER=everydocs
+   EVERYDOCS_DB_HOST=localhost
+   EVERYDOCS_DB_PORT=3306
+   
+   # Application settings
+   RAILS_ENV=production
+   PORT=5678
+   LOG_DIR=log
+   PID_DIR=tmp/pids
+   ```
+
+4. **Setup the database:**
+   ```bash
+   rails db:create RAILS_ENV=production
+   rails db:migrate RAILS_ENV=production
+   ```
+
+5. **Start the server:**
+   ```bash
+   # Using scripts (recommended)
+   ./start-app.sh
+   
+   # Or using Makefile
+   make start
+   ```
+
+#### Convenience Scripts
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| Start | `./start-app.sh` | Start the server with PID management and logging |
+| Stop | `./stop-app.sh` | Gracefully stop the server (SIGTERM → SIGKILL fallback) |
+| Status | `./status.sh` | Check server status, uptime, memory, port connectivity |
+
+#### Makefile Commands
+
+A `Makefile` is provided for convenience:
+
+| Command | Description |
+|---------|-------------|
+| `make start` | Start the server |
+| `make stop` | Stop the server |
+| `make restart` | Restart the server |
+| `make status` | Check server status |
+| `make smoke` | Run non-interactive smoke test (for CI) |
+| `make test` | Run Rails tests |
+| `make test-controllers` | Run controller tests only |
+| `make logs` | Tail log files |
+| `make logs-error` | Tail error log only |
+| `make clean-logs` | Clean log files |
+| `make help` | Show all available commands |
+
+#### Manual Installation Environment Variables
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `SECRET_KEY_BASE` | Rails secret key for encryption | - | Yes |
+| `MYSQL_PASSWORD` | Database password | - | Yes |
+| `EVERYDOCS_DB_ADAPTER` | Database adapter | `mysql2` | No |
+| `EVERYDOCS_DB_NAME` | Database name | `everydocs` | No |
+| `EVERYDOCS_DB_USER` | Database user | `everydocs` | No |
+| `EVERYDOCS_DB_HOST` | Database host | `localhost` | No |
+| `EVERYDOCS_DB_PORT` | Database port | `3306` | No |
+| `RAILS_ENV` | Rails environment | `production` | No |
+| `PORT` | Server port | `5678` | No |
+| `LOG_DIR` | Log directory | `log` | No |
+| `PID_DIR` | PID file directory | `tmp/pids` | No |
+
+#### Manual Installation Ports
+
+| Port | Service | Description |
+|------|---------|-------------|
+| 5678 | API | EveryDocs Core API (default) |
+
+**Note:** Port can be changed via the `PORT` environment variable.
+
+### Docker (Single Container)
 
 Start the container and make the API accessible on port ``8080`` by running the following commands. Of course, you can change the port in the last command.
 Also make sure to check the folder that is mounted into the container. In this case, the uploaded files are stored in ``/data/everydocs`` on the host.
@@ -125,26 +219,31 @@ You can configure the application by using the following environment variables:
 You might want to include this container in a network so it has access to a database container.
 Also there are ways to connect to a database that runs on the host (e.g. see [Stackoverflow](https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach)).
 
-### Manual Installation (not recommended)
+## Environment Configuration
 
-1. Make sure you have Ruby installed. For an installation guide, check here: [Ruby installation guide](https://guides.rubyonrails.org/getting_started.html#installing-rails)
-2. If you haven't installed the Rails Gem, you can run the following command: ``gem install rails``
-3. Download the newest release and unzip it in a location of your own choice.
-4. Configure your database connection by setting the following environment variables: ``EVERYDOCS_DB_ADAPTER`` (e.g. mysql2), ``EVERYDOCS_DB_NAME``, ``EVERYDOCS_DB_USER``, ``EVERYDOCS_DB_PASSWORD``, ``EVERYDOCS_DB_HOST``, ``EVERYDOCS_DB_PORT``.
-   You can do so by editing the ``start-app.sh`` script.
-5. Configure the folder where documents are stored in config/settings.yml.
-   The default location is ``/var/everydocs-files/``.
-6. Install required dependencies by running: ``bundle install``
-7. You might want to change the port of the application in ``start-app.sh`` and ``stop-app.sh``.
-8. Setup your database by running: ``rake db:migrate RAILS_ENV=production``. If there is an error, you might need to execute the following command, to
-set an encryption key: ``EDITOR="mate --wait" bin/rails credentials:edit``
-9. Make sure that the environment variable ``SECRET_KEY_BASE`` has a value.
-   If not, you can generate a key by running ``rake secret`` and set it by editing the ``start-app.sh`` script.
-   In case your not using production as your environment, the environment variable ``SECRET_KEY_BASE_DEV`` or ``SECRET_KEY_BASE_TEST`` needs to be set.
-10. Start your Rails server: ``./start-app.sh``
-11. Access the application on http://localhost:5678 or configure any kind of proxy forwarding in your webserver.
-12. If you wish to use this application in your web browser, consider to install [EveryDocs Web](https://github.com/jonashellmann/everydocs-web/)!
-13. Stop the application: ``./stop-app.sh``
+### Generating Strong Secrets
+
+```bash
+# Generate SECRET_KEY_BASE (required for all installations)
+openssl rand -hex 64
+
+# Generate strong MySQL passwords
+openssl rand -hex 32
+
+# Or use a more complex password
+openssl rand -base64 32
+```
+
+### Environment File Configuration
+
+The `.env` file is **ignored by git** (listed in `.gitignore`), so your secrets will never be committed.
+
+Use the provided `.env.example` as a template:
+```bash
+cp .env.example .env
+```
+
+**⚠️ Never commit `.env` to version control!**
 
 ## Authentication
 
@@ -241,6 +340,37 @@ async function makeRequest(url, options = {}) {
   
   return response;
 }
+```
+
+## CI/CD and Testing
+
+### Smoke Test (Non-Interactive)
+
+A `make smoke` command is available for CI environments:
+
+```bash
+make smoke
+```
+
+This command performs:
+1. Checks for `.env` file
+2. Verifies `SECRET_KEY_BASE` is set
+3. Checks required commands (ruby, bundle, rails)
+4. Verifies bundle dependencies
+5. Runs database migrations for test environment
+6. Runs the full test suite
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run controller tests only
+make test-controllers
+
+# Or directly
+rails test RAILS_ENV=test
 ```
 
 ## Backup
