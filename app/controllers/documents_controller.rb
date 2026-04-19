@@ -1,13 +1,15 @@
 class DocumentsController < ApplicationController
+  PAGE_SIZE = 20
+
   before_action :set_document, only: [:show, :download, :update, :destroy]
   before_action :set_documents, only: [:index, :page_count]
 
   # GET /documents
   def index
-    page = params[:page].blank? ? 1 : convert_to_int(params[:page])
-    page = 1 if page.nil? || page < 1
+    page = parse_page_param(params[:page])
+    offset = (page - 1) * PAGE_SIZE
     
-    @documents = @documents.offset((page - 1) * 20).limit(20)
+    @documents = @documents.offset(offset).limit(PAGE_SIZE)
 
     json_response(@documents)
   end
@@ -134,16 +136,37 @@ class DocumentsController < ApplicationController
 
   # GET /documents/pages
   def page_count
-    @document_count = @documents.count
-    @page_count = (@document_count / 20.0).ceil
-    json_response(page_count: @page_count)
+    document_count = @documents.count
+    page_count_value = (document_count.to_f / PAGE_SIZE).ceil
+    json_response(page_count: page_count_value)
   end
 
   private
 
-  def convert_to_int(string)
-    num = string.to_i
-    num if num.to_s == string
+  def parse_page_param(page_param)
+    return 1 if page_param.blank?
+    
+    page = parse_positive_integer(page_param)
+    page.nil? || page < 1 ? 1 : page
+  end
+
+  def parse_positive_integer(string)
+    return nil if string.blank?
+    
+    stripped = string.to_s.strip
+    return nil if stripped.empty?
+    
+    if stripped.match?(/\A\d+\z/)
+      num = stripped.to_i
+      num > 0 ? num : nil
+    else
+      nil
+    end
+  end
+
+  def parse_filter_id(filter_param)
+    return nil if filter_param.blank?
+    parse_positive_integer(filter_param)
   end
 
   def set_document
@@ -153,9 +176,9 @@ class DocumentsController < ApplicationController
   def set_documents
     @documents = current_user.documents.order(document_date: :desc)
 
-    folder_id = convert_to_int(params[:folder_filter]) if !params[:folder_filter].blank?
-    state_id = convert_to_int(params[:state_filter]) if !params[:state_filter].blank?
-    person_id = convert_to_int(params[:person_filter]) if !params[:person_filter].blank?
+    folder_id = parse_filter_id(params[:folder_filter])
+    state_id = parse_filter_id(params[:state_filter])
+    person_id = parse_filter_id(params[:person_filter])
 
     @documents = @documents.where(folder_id: folder_id) if folder_id
     @documents = @documents.where(state_id: state_id) if state_id

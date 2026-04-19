@@ -324,6 +324,42 @@ class DocumentsControllerTest < ActionController::TestCase
     assert_equal 'Work Report 2024', documents.first['title']
   end
 
+  test "invalid filter ID should be ignored" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { folder_filter: 'abc' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 3, documents.length
+  end
+
+  test "negative filter ID should be ignored" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { folder_filter: '-1' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 3, documents.length
+  end
+
+  test "zero filter ID should be ignored" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { folder_filter: '0' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 3, documents.length
+  end
+
   # ==================== Search Tests (ActiveRecord Queries) ====================
 
   test "should search documents by title" do
@@ -403,7 +439,7 @@ class DocumentsControllerTest < ActionController::TestCase
     assert_equal 0, documents.length
   end
 
-  # ==================== Pagination Tests (ActiveRecord Queries) ====================
+  # ==================== Pagination Tests (Unified Logic) ====================
 
   test "pagination should work correctly with filtered results" do
     @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
@@ -458,10 +494,44 @@ class DocumentsControllerTest < ActionController::TestCase
     Document.where(folder_id: @work_folder.id).where('title LIKE ?', 'Page Count Test%').destroy_all
   end
 
+  test "no page param should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    3.times do |i|
+      Document.create!(
+        title: "Default Page Test #{i + 1}",
+        document_date: Date.today - i.days,
+        document_url: "default_test_#{i}.pdf",
+        user: @non_encrypted_user,
+        encrypted_flag: false
+      )
+    end
+    
+    get :index
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 6, documents.length
+    
+    Document.where('title LIKE ?', 'Default Page Test%').destroy_all
+  end
+
   test "page 0 should default to page 1" do
     @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
     
     get :index, params: { page: 0 }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  test "page 0 as string should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: '0' }
     
     assert_response :success
     documents = JSON.parse(@response.body)
@@ -480,6 +550,123 @@ class DocumentsControllerTest < ActionController::TestCase
     assert_not_empty documents
   end
 
+  test "negative page as string should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: '-5' }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  test "non-numeric page should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: 'abc' }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  test "page with decimal should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: '1.5' }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  test "page with special chars should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: '1abc' }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  test "page beyond total pages should return empty array" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    5.times do |i|
+      Document.create!(
+        title: "Beyond Test #{i + 1}",
+        document_date: Date.today - i.days,
+        document_url: "beyond_test_#{i}.pdf",
+        user: @non_encrypted_user,
+        encrypted_flag: false
+      )
+    end
+    
+    get :index, params: { page: 100 }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 0, documents.length
+    
+    Document.where('title LIKE ?', 'Beyond Test%').destroy_all
+  end
+
+  test "page_count with invalid page should still return correct count" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    5.times do |i|
+      Document.create!(
+        title: "Count Invalid Test #{i + 1}",
+        document_date: Date.today - i.days,
+        document_url: "count_invalid_test_#{i}.pdf",
+        user: @non_encrypted_user,
+        encrypted_flag: false
+      )
+    end
+    
+    get :page_count, params: { page: 'invalid' }
+    
+    assert_response :success
+    result = JSON.parse(@response.body)
+    
+    assert_equal 1, result['page_count']
+    
+    Document.where('title LIKE ?', 'Count Invalid Test%').destroy_all
+  end
+
+  test "index and page_count should use same query logic with filters" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    10.times do |i|
+      Document.create!(
+        title: "Consistency Test #{i + 1}",
+        document_date: Date.today - i.days,
+        document_url: "consistency_test_#{i}.pdf",
+        user: @non_encrypted_user,
+        encrypted_flag: false,
+        folder: @work_folder
+      )
+    end
+    
+    get :page_count, params: { folder_filter: @work_folder.id }
+    page_count_result = JSON.parse(@response.body)
+    total_pages = page_count_result['page_count']
+    
+    get :index, params: { folder_filter: @work_folder.id, page: 1 }
+    index_result = JSON.parse(@response.body)
+    
+    assert_equal 1, total_pages
+    assert_equal 12, index_result.length
+    
+    Document.where(folder_id: @work_folder.id).where('title LIKE ?', 'Consistency Test%').destroy_all
+  end
+
   # ==================== Security Tests ====================
 
   test "should return unauthorized without token" do
@@ -493,6 +680,12 @@ class DocumentsControllerTest < ActionController::TestCase
 
   test "should return unauthorized for index without token" do
     get :index
+    
+    assert_response :unauthorized
+  end
+
+  test "should return unauthorized for page_count without token" do
+    get :page_count
     
     assert_response :unauthorized
   end
