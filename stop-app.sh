@@ -8,6 +8,11 @@ DEFAULT_RAILS_ENV="production"
 DEFAULT_PORT=5678
 DEFAULT_PID_DIR="tmp/pids"
 
+EXIT_CODE_SUCCESS=0
+EXIT_CODE_NO_PROCESS=1
+EXIT_CODE_STOP_FAILED=2
+EXIT_CODE_ERROR=3
+
 log_info() {
     echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
@@ -157,7 +162,7 @@ main() {
         log_info "=============================================="
         log_info "No running EveryDocs process found"
         log_info "=============================================="
-        exit 0
+        exit $EXIT_CODE_NO_PROCESS
     fi
 
     log_info "Found ${#pids_to_stop[@]} process(es) to stop"
@@ -179,11 +184,11 @@ main() {
         log_success "=============================================="
         log_success "EveryDocs Core has been stopped"
         log_success "=============================================="
-        exit 0
+        exit $EXIT_CODE_SUCCESS
     else
         log_error "Stopped $stopped_count/${#pids_to_stop[@]} processes"
         log_error "=============================================="
-        exit 1
+        exit $EXIT_CODE_STOP_FAILED
     fi
 }
 

@@ -159,6 +159,26 @@ If you prefer to run EveryDocs directly on your host system (not in Docker), fol
 | Start | `./start-app.sh` | Start the server with PID management and logging |
 | Stop | `./stop-app.sh` | Gracefully stop the server (SIGTERM → SIGKILL fallback) |
 | Status | `./status.sh` | Check server status, uptime, memory, port connectivity |
+| Smoke CI | `./smoke-ci.sh` | Run CI smoke test (start → probe → stop) |
+
+##### Script Exit Codes
+
+**status.sh Exit Codes:**
+
+| Exit Code | Meaning |
+|-----------|---------|
+| `0` | Service is RUNNING |
+| `1` | Service is NOT RUNNING (not started or stopped) |
+| `2` | Error (stale PID file, invalid PID, etc.) |
+
+**stop-app.sh Exit Codes:**
+
+| Exit Code | Meaning |
+|-----------|---------|
+| `0` | Success: All processes stopped |
+| `1` | No running process found (already stopped) |
+| `2` | Stop failed: Process could not be stopped |
+| `3` | Error |
 
 #### Makefile Commands
 
@@ -170,7 +190,8 @@ A `Makefile` is provided for convenience:
 | `make stop` | Stop the server |
 | `make restart` | Restart the server |
 | `make status` | Check server status |
-| `make smoke` | Run non-interactive smoke test (for CI) |
+| `make smoke` | Run interactive smoke test |
+| `make smoke-ci` | Run CI smoke test (start → probe /version → stop) |
 | `make test` | Run Rails tests |
 | `make test-controllers` | Run controller tests only |
 | `make logs` | Tail log files |
@@ -344,9 +365,45 @@ async function makeRequest(url, options = {}) {
 
 ## CI/CD and Testing
 
-### Smoke Test (Non-Interactive)
+### GitHub Actions Workflow
 
-A `make smoke` command is available for CI environments:
+The project includes a GitHub Actions workflow (`.github/workflows/ruby.yml`) that:
+1. Runs Ruby syntax checks
+2. Migrates the test database
+3. Runs the full test suite (`bundle exec rake`)
+4. **New**: Runs the CI smoke test (`./smoke-ci.sh`)
+
+The smoke test job (`smoke-test`) depends on the test job (`test`) and only runs if tests pass.
+
+### CI Smoke Test (`smoke-ci.sh`)
+
+A dedicated CI smoke test script is provided to verify the server can actually start and respond:
+
+```bash
+./smoke-ci.sh
+
+# Or via Makefile
+make smoke-ci
+```
+
+This script performs:
+1. **Cleanup**: Stops any existing instance on a random port
+2. **Database Setup**: Runs migrations with `RAILS_ENV=test`
+3. **Start Server**: Starts the server with:
+   - Random port (1024-65535)
+   - `RAILS_ENV=test`
+   - Auto-generated `SECRET_KEY_BASE`
+4. **Probe**: Waits up to 60 seconds for `/version` endpoint to respond
+5. **Stop**: Gracefully stops the server
+
+**Features:**
+- Random port to avoid conflicts
+- Automatic cleanup on exit (via `trap`)
+- Tail last 100 lines of logs on failure for debugging
+
+### Interactive Smoke Test (`make smoke`)
+
+The interactive smoke test (requires `.env` file):
 
 ```bash
 make smoke

@@ -1,4 +1,4 @@
-.PHONY: start stop restart status smoke clean help
+.PHONY: start stop restart status smoke smoke-ci clean help
 
 .DEFAULT_GOAL := help
 
@@ -6,6 +6,8 @@ PROJECT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 PID_DIR := tmp/pids
 PID_FILE := $(PID_DIR)/everydocs.pid
 LOG_DIR := log
+
+SMOKE_PORT := $(shell awk 'BEGIN{srand(); print int(1024 + rand() * 54531)}')
 
 help:
 	@echo "EveryDocs Core - Make Commands"
@@ -16,7 +18,8 @@ help:
 	@echo "  stop        - Stop the EveryDocs server"
 	@echo "  restart     - Restart the EveryDocs server"
 	@echo "  status      - Check server status"
-	@echo "  smoke       - Run non-interactive smoke test (for CI)"
+	@echo "  smoke       - Run interactive smoke test"
+	@echo "  smoke-ci    - Run CI smoke test (start -> probe -> stop)"
 	@echo "  test        - Run Rails tests"
 	@echo "  logs        - Tail the server logs"
 	@echo "  clean-logs  - Clean log files"
@@ -32,7 +35,7 @@ help:
 	@echo "  make start"
 	@echo "  make stop"
 	@echo "  make restart"
-	@echo "  make smoke"
+	@echo "  make smoke-ci"
 	@echo ""
 
 start:
@@ -41,7 +44,7 @@ start:
 
 stop:
 	@echo "Stopping EveryDocs Core..."
-	@cd $(PROJECT_DIR) && ./stop-app.sh
+	@cd $(PROJECT_DIR) && ./stop-app.sh || true
 
 restart: stop start
 
@@ -79,7 +82,7 @@ db-migrate-test:
 
 smoke:
 	@echo "=============================================="
-	@echo "EveryDocs Core - Non-Interactive Smoke Test"
+	@echo "EveryDocs Core - Interactive Smoke Test"
 	@echo "=============================================="
 	@echo ""
 	@echo "Phase 1: Checking prerequisites..."
@@ -120,3 +123,6 @@ smoke:
 	@echo "=============================================="
 	@echo "Smoke Test Completed"
 	@echo "=============================================="
+
+smoke-ci:
+	@cd $(PROJECT_DIR) && ./smoke-ci.sh
