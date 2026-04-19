@@ -4,12 +4,10 @@ class DocumentsController < ApplicationController
 
   # GET /documents
   def index
-    @start_index = 0
-    if (!params[:page].blank?)
-      @start_index = (convert_to_int(params[:page]) - 1) * 20
-    end
-    @end_index = @start_index + 19
-    @documents = @documents[@start_index..@end_index]
+    page = params[:page].blank? ? 1 : convert_to_int(params[:page])
+    page = 1 if page.nil? || page < 1
+    
+    @documents = @documents.offset((page - 1) * 20).limit(20)
 
     json_response(@documents)
   end
@@ -136,8 +134,8 @@ class DocumentsController < ApplicationController
 
   # GET /documents/pages
   def page_count
-    @document_count = @documents.length()
-    @page_count = (@document_count/20.to_f).ceil
+    @document_count = @documents.count
+    @page_count = (@document_count / 20.0).ceil
     json_response(page_count: @page_count)
   end
 
@@ -155,18 +153,27 @@ class DocumentsController < ApplicationController
   def set_documents
     @documents = current_user.documents.order(document_date: :desc)
 
-    if (!params[:folder_filter].blank?)
-      @documents = @documents.select { |d| d.folder_id == convert_to_int(params[:folder_filter])}
-    end
-    if (!params[:state_filter].blank?)
-      @documents = @documents.select { |d| d.state_id == convert_to_int(params[:state_filter])}
-    end
-    if (!params[:person_filter].blank?)
-      @documents = @documents.select { |d| d.person_id == convert_to_int(params[:person_filter])}
-    end
-    if (!params[:search].blank?)
-      @search = params[:search].to_s.downcase.delete(' ')
-      @documents = @documents.select { |d| (d.title.downcase.delete(' ').include?(@search) or (!d.description.nil? and d.description.downcase.delete(' ').include?(@search)) or (!d.document_text.nil? and d.document_text.downcase.delete(' ').include?(@search)))}
+    folder_id = convert_to_int(params[:folder_filter]) if !params[:folder_filter].blank?
+    state_id = convert_to_int(params[:state_filter]) if !params[:state_filter].blank?
+    person_id = convert_to_int(params[:person_filter]) if !params[:person_filter].blank?
+
+    @documents = @documents.where(folder_id: folder_id) if folder_id
+    @documents = @documents.where(state_id: state_id) if state_id
+    @documents = @documents.where(person_id: person_id) if person_id
+
+    if !params[:search].blank?
+      search_term = params[:search].to_s.downcase.delete(' ')
+      
+      if search_term.present?
+        search_pattern = "%#{search_term}%"
+        
+        @documents = @documents.where(
+          "LOWER(REPLACE(title, ' ', '')) LIKE :search OR 
+           (LOWER(REPLACE(description, ' ', '')) LIKE :search AND description IS NOT NULL) OR 
+           (LOWER(REPLACE(document_text, ' ', '')) LIKE :search AND document_text IS NOT NULL)",
+          search: search_pattern
+        )
+      end
     end
   end
 end

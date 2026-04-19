@@ -1,9 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  user: 
+john:
+  name: John Doe
+  user_id: one
 
-two:
-  name: MyString
-  user: 
+jane:
+  name: Jane Smith
+  user_id: one
+
+accounting:
+  name: Accounting Department
+  user_id: two

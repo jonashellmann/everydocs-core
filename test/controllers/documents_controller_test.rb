@@ -4,7 +4,13 @@ class DocumentsControllerTest < ActionController::TestCase
   setup do
     @non_encrypted_user = users(:one)
     @encrypted_user = users(:two)
-    @document = documents(:one)
+    
+    @work_folder = folders(:work)
+    @personal_folder = folders(:personal)
+    @draft_state = states(:draft)
+    @review_state = states(:review)
+    @john_person = people(:john)
+    @jane_person = people(:jane)
     
     @token_without_encryption = JsonWebToken.encode(user_id: @non_encrypted_user.id)
     @token_with_encryption = JsonWebToken.encode(user_id: @encrypted_user.id)
@@ -12,6 +18,8 @@ class DocumentsControllerTest < ActionController::TestCase
     @test_pdf_content = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(Hello World) Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000208 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n310\n%%EOF"
   end
 
+  # ==================== Create Tests ====================
+  
   test "should create document without encryption for non-encrypted user" do
     @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
     
@@ -213,6 +221,8 @@ class DocumentsControllerTest < ActionController::TestCase
     temp_file.unlink
   end
 
+  # ==================== Download Tests ====================
+
   test "should download non-encrypted document" do
     @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
     
@@ -262,6 +272,216 @@ class DocumentsControllerTest < ActionController::TestCase
     document.destroy
   end
 
+  # ==================== Filter Tests (ActiveRecord Queries) ====================
+
+  test "should filter documents by folder" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { folder_filter: @work_folder.id }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 2, documents.length
+    
+    titles = documents.map { |d| d['title'] }
+    assert_includes titles, 'Work Report 2024'
+    assert_includes titles, 'Project Proposal'
+    assert_not_includes titles, 'Personal Notes'
+  end
+
+  test "should filter documents by state" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { state_filter: @draft_state.id }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 2, documents.length
+    
+    titles = documents.map { |d| d['title'] }
+    assert_includes titles, 'Work Report 2024'
+    assert_includes titles, 'Personal Notes'
+    assert_not_includes titles, 'Project Proposal'
+  end
+
+  test "should filter documents by folder and state" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { 
+      folder_filter: @work_folder.id,
+      state_filter: @draft_state.id
+    }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 1, documents.length
+    assert_equal 'Work Report 2024', documents.first['title']
+  end
+
+  # ==================== Search Tests (ActiveRecord Queries) ====================
+
+  test "should search documents by title" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { search: 'Work Report' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 1, documents.length
+    assert_equal 'Work Report 2024', documents.first['title']
+  end
+
+  test "should search documents by description" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { search: 'personal document' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 1, documents.length
+    assert_equal 'Personal Notes', documents.first['title']
+  end
+
+  test "should search documents by document_text" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { search: 'projectproposalq1' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 1, documents.length
+    assert_equal 'Project Proposal', documents.first['title']
+  end
+
+  test "search should ignore spaces" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { search: 'Project  Proposal  Q1' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 1, documents.length
+    assert_equal 'Project Proposal', documents.first['title']
+  end
+
+  test "search should be case insensitive" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { search: 'work report' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 1, documents.length
+    assert_equal 'Work Report 2024', documents.first['title']
+  end
+
+  test "search with no matches should return empty array" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { search: 'nonexistentkeyword123456' }
+    
+    assert_response :success
+    
+    documents = JSON.parse(@response.body)
+    
+    assert_equal 0, documents.length
+  end
+
+  # ==================== Pagination Tests (ActiveRecord Queries) ====================
+
+  test "pagination should work correctly with filtered results" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    25.times do |i|
+      Document.create!(
+        title: "Pagination Test #{i + 1}",
+        document_date: Date.today - i.days,
+        document_url: "page_test_#{i}.pdf",
+        user: @non_encrypted_user,
+        encrypted_flag: false,
+        folder: @work_folder
+      )
+    end
+    
+    get :index, params: { folder_filter: @work_folder.id, page: 1 }
+    
+    assert_response :success
+    page1 = JSON.parse(@response.body)
+    assert_equal 20, page1.length
+    
+    get :index, params: { folder_filter: @work_folder.id, page: 2 }
+    
+    assert_response :success
+    page2 = JSON.parse(@response.body)
+    assert_equal 5, page2.length
+    
+    Document.where(folder_id: @work_folder.id).where('title LIKE ?', 'Pagination Test%').destroy_all
+  end
+
+  test "page_count should reflect filtered results" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    25.times do |i|
+      Document.create!(
+        title: "Page Count Test #{i + 1}",
+        document_date: Date.today - i.days,
+        document_url: "count_test_#{i}.pdf",
+        user: @non_encrypted_user,
+        encrypted_flag: false,
+        folder: @work_folder
+      )
+    end
+    
+    get :page_count, params: { folder_filter: @work_folder.id }
+    
+    assert_response :success
+    result = JSON.parse(@response.body)
+    
+    assert_equal 2, result['page_count']
+    
+    Document.where(folder_id: @work_folder.id).where('title LIKE ?', 'Page Count Test%').destroy_all
+  end
+
+  test "page 0 should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: 0 }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  test "negative page should default to page 1" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index, params: { page: -1 }
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    assert_not_empty documents
+  end
+
+  # ==================== Security Tests ====================
+
   test "should return unauthorized without token" do
     post :create, params: {
       title: 'Test',
@@ -269,5 +489,38 @@ class DocumentsControllerTest < ActionController::TestCase
     }
     
     assert_response :unauthorized
+  end
+
+  test "should return unauthorized for index without token" do
+    get :index
+    
+    assert_response :unauthorized
+  end
+
+  test "user should only see own documents" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    user_ids = documents.map { |d| d['user']['id'] }.uniq
+    assert_equal [@non_encrypted_user.id], user_ids
+    assert_not_includes documents.map { |d| d['title'] }, 'Encrypted Invoice'
+  end
+
+  # ==================== Order Tests ====================
+
+  test "documents should be ordered by document_date descending" do
+    @request.headers['Authorization'] = "Bearer #{@token_without_encryption}"
+    
+    get :index
+    
+    assert_response :success
+    documents = JSON.parse(@response.body)
+    
+    dates = documents.map { |d| Date.parse(d['document_date']) }
+    assert_equal dates.sort.reverse, dates
   end
 end

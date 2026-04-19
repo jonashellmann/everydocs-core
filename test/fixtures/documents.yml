@@ -1,23 +1,49 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  title: Non Encrypted Document
-  description: A non-encrypted test document
-  document_date: 2019-05-25
-  document_url: test1.pdf
+doc_work_draft:
+  title: Work Report 2024
+  description: Annual work report document
+  document_date: 2024-01-15
+  document_url: report_2024.pdf
   version: 1.0
-  folder_id: 
   user_id: one
-  state_id: 
+  folder_id: work
+  state_id: draft
   encrypted_flag: false
+  document_text: annualworkreport2024summary
 
-two:
-  title: Encrypted Document
-  description: An encrypted test document
-  document_date: 2019-05-25
-  document_url: test2.pdf
+doc_work_review:
+  title: Project Proposal
+  description: New project proposal for Q1
+  document_date: 2024-02-20
+  document_url: proposal.pdf
   version: 1.0
-  folder_id: 
+  user_id: one
+  folder_id: work
+  state_id: review
+  encrypted_flag: false
+  document_text: projectproposalq12024
+
+doc_personal:
+  title: Personal Notes
+  description: My personal document
+  document_date: 2024-03-10
+  document_url: notes.pdf
+  version: 1.0
+  user_id: one
+  folder_id: personal
+  state_id: draft
+  encrypted_flag: false
+  document_text: personaldocumentnotes
+
+doc_encrypted:
+  title: Encrypted Invoice
+  description: Confidential invoice
+  document_date: 2024-04-01
+  document_url: invoice.pdf
+  version: 1.0
   user_id: two
-  state_id: 
+  folder_id: invoices
+  state_id: completed
   encrypted_flag: true
+  document_text: ""

@@ -1,11 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  folder_id: 
-  user_id: 
+work:
+  name: Work
+  user_id: one
 
-two:
-  name: MyString
-  folder_id: 
-  user_id: 
+personal:
+  name: Personal
+  user_id: one
+
+invoices:
+  name: Invoices
+  user_id: two
