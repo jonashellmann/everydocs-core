@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   root 'welcome#index'
   
   post 'auth/login', to: 'authentication#authenticate'
+  post 'auth/refresh', to: 'authentication#refresh'
   post 'signup', to: 'users#create'
 
   get 'documents/file/:id', to: 'documents#download'
