@@ -37,6 +37,7 @@ gem 'lockbox', '=1.3.3'
 
 group :development, :test do
   gem 'byebug'
+  gem 'brakeman', require: false
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-performance', require: false

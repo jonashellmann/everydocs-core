@@ -21,9 +21,26 @@ jobs:
           bundle exec rubocop --format progress --format clang
           echo "::endgroup::"
 
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: true
+
+      - name: Run Brakeman Security Scan
+        run: |
+          echo "::group::Brakeman Security Scan"
+          bundle exec brakeman --exit-on-warn --no-progress -f plain
+          echo "::endgroup::"
+
   test:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, security-scan]
     steps:
       - uses: actions/checkout@v4.1.0
 
@@ -45,9 +62,17 @@ jobs:
           bundle exec rails ci:health RAILS_ENV=test
           echo "::endgroup::"
 
-      - name: Run tests
+      - name: Run tests with Minitest parallelize
         run: |
-          echo "::group::Running Tests"
+          echo "::group::Running Tests (with Minitest parallelize)"
+          echo "Parallelization: Using Minitest parallelize with :number_of_processors workers"
+          echo "Reason: Project has ~18 test files (controllers + models). Minitest parallelize is"
+          echo "        sufficient and simpler than multi-job matrix for this scale."
+          echo "Boundaries:"
+          echo "  - All tests share the same GitHub Actions runner"
+          echo "  - Limited by single runner's CPU cores (typically 2-4 on GitHub-hosted runners)"
+          echo "  - Tests must be thread-safe (use transactions or proper database isolation)"
+          echo ""
           bundle exec rails test RAILS_ENV=test --verbose
           echo "::endgroup::"
 
