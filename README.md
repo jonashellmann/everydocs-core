@@ -190,8 +190,8 @@ A `Makefile` is provided for convenience:
 | `make stop` | Stop the server |
 | `make restart` | Restart the server |
 | `make status` | Check server status |
-| `make smoke` | Run interactive smoke test |
-| `make smoke-ci` | Run CI smoke test (start → probe /version → stop) |
+| `make smoke` | Run smoke test (start → probe /version → stop) |
+| `make check` | Run quick check (.env + dependencies + tests) |
 | `make test` | Run Rails tests |
 | `make test-controllers` | Run controller tests only |
 | `make logs` | Tail log files |
@@ -383,7 +383,7 @@ A dedicated CI smoke test script is provided to verify the server can actually s
 ./smoke-ci.sh
 
 # Or via Makefile
-make smoke-ci
+make smoke
 ```
 
 This script performs:
@@ -399,14 +399,14 @@ This script performs:
 **Features:**
 - Random port to avoid conflicts
 - Automatic cleanup on exit (via `trap`)
-- Tail last 100 lines of logs on failure for debugging
+- Tail last 100 lines of logs (`log/everydocs.log` and `log/everydocs.error.log`) on failure for debugging
 
-### Interactive Smoke Test (`make smoke`)
+### Quick Check (`make check`)
 
-The interactive smoke test (requires `.env` file):
+The quick check (requires `.env` file):
 
 ```bash
-make smoke
+make check
 ```
 
 This command performs:
