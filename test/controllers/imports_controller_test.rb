@@ -91,6 +91,36 @@ class ImportsControllerTest < ActionController::TestCase
         documents: []
       }
     }
+
+    @encrypted_with_document_text_data = {
+      schema_version: 1,
+      exported_at: Time.current.iso8601,
+      user: { name: 'Encrypted User', email: 'encrypted@example.com' },
+      data: {
+        folders: [
+          { name: 'Encrypted Folder', parent_folder_name: nil, created_at: 1.day.ago.iso8601, updated_at: 1.day.ago.iso8601 }
+        ],
+        tags: [],
+        people: [],
+        states: [],
+        documents: [
+          {
+            title: 'Encrypted With Text',
+            description: 'Should be rejected',
+            document_date: Date.today.iso8601,
+            version: '1.0',
+            encrypted_flag: true,
+            folder_name: 'Encrypted Folder',
+            state_name: nil,
+            person_name: nil,
+            tag_names: [],
+            document_text: 'This should not be here for encrypted docs',
+            created_at: 1.day.ago.iso8601,
+            updated_at: 1.day.ago.iso8601
+          }
+        ]
+      }
+    }
   end
 
   test 'should preview import data without modifying database' do
@@ -298,5 +328,194 @@ class ImportsControllerTest < ActionController::TestCase
     json_response = JSON.parse(response.body)
 
     assert_equal 1, json_response['preview']['encrypted_documents']
+  end
+
+  test 'should reject encrypted document with document_text' do
+    original_folder_count = @user.folders.count
+    original_doc_count = @user.documents.count
+
+    post :create, params: { import: @encrypted_with_document_text_data }, format: :json
+
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+
+    assert_not json_response['success']
+    assert_not_empty json_response['errors']
+    assert_includes json_response['errors'].first, '加密文档禁止导入正文检索字段'
+    assert_includes json_response['errors'].first, 'Encrypted With Text'
+
+    assert_equal original_folder_count, @user.folders.count
+    assert_equal original_doc_count, @user.documents.count
+  end
+
+  test 'should reject encrypted document with document_text in preview' do
+    post :preview, params: { import: @encrypted_with_document_text_data }, format: :json
+
+    assert_response :success
+    json_response = JSON.parse(response.body)
+
+    assert_not_empty json_response['errors']
+    assert_includes json_response['errors'].first, '加密文档禁止导入正文检索字段'
+  end
+
+  test 'conflict: existing folder should be skipped with warning' do
+    existing_folder = @user.folders.create!(name: 'Imported Work')
+
+    original_folder_count = @user.folders.count
+
+    post :create, params: { import: @valid_export_data }, format: :json
+
+    assert_response :success
+    json_response = JSON.parse(response.body)
+
+    assert json_response['success']
+    assert_not_empty json_response['warnings']
+    assert_includes json_response['warnings'].first, 'Folders already exist'
+    assert_includes json_response['warnings'].first, 'Imported Work'
+
+    assert_equal original_folder_count + 1, @user.folders.count
+    assert @user.folders.exists?(id: existing_folder.id)
+  end
+
+  test 'conflict: existing tag should be skipped with warning' do
+    existing_tag = @user.tags.create!(name: 'Imported Tag', color: '#00ff00')
+
+    original_tag_count = @user.tags.count
+
+    post :create, params: { import: @valid_export_data }, format: :json
+
+    assert_response :success
+    json_response = JSON.parse(response.body)
+
+    assert json_response['success']
+    assert_not_empty json_response['warnings']
+    assert_includes json_response['warnings'].first, 'Tags already exist'
+    assert_includes json_response['warnings'].first, 'Imported Tag'
+
+    assert_equal original_tag_count, @user.tags.count
+    assert @user.tags.exists?(id: existing_tag.id)
+    assert_equal '#00ff00', existing_tag.reload.color
+  end
+
+  test 'conflict: existing person should be skipped with warning' do
+    existing_person = @user.people.create!(name: 'Imported Person')
+
+    original_person_count = @user.people.count
+
+    post :create, params: { import: @valid_export_data }, format: :json
+
+    assert_response :success
+    json_response = JSON.parse(response.body)
+
+    assert json_response['success']
+    assert_not_empty json_response['warnings']
+    assert_includes json_response['warnings'].to_s, 'People already exist'
+    assert_includes json_response['warnings'].to_s, 'Imported Person'
+
+    assert_equal original_person_count, @user.people.count
+    assert @user.people.exists?(id: existing_person.id)
+  end
+
+  test 'conflict: existing document (same title + date) should be skipped with warning' do
+    test_date = Date.today
+    existing_doc = @user.documents.create!(
+      title: 'Imported Document',
+      document_date: test_date,
+      document_url: 'existing.pdf',
+      document_text: 'existing text'
+    )
+
+    original_doc_count = @user.documents.count
+
+    post :create, params: { import: @valid_export_data }, format: :json
+
+    assert_response :success
+    json_response = JSON.parse(response.body)
+
+    assert json_response['success']
+    assert_not_empty json_response['warnings']
+    assert_includes json_response['warnings'].to_s, 'Documents already exist'
+    assert_includes json_response['warnings'].to_s, 'Imported Document'
+
+    assert_equal 0, json_response['imported_data']['documents']
+    assert_equal 1, json_response['imported_data']['documents_skipped']
+
+    assert_equal original_doc_count, @user.documents.count
+    assert @user.documents.exists?(id: existing_doc.id)
+    assert_equal 'existing text', existing_doc.reload.document_text
+  end
+
+  test 'should reject import with duplicate documents in same data (same title + date)' do
+    duplicate_data = @valid_export_data.deep_dup
+    duplicate_data[:data][:documents] << {
+      title: 'Imported Document',
+      description: 'Duplicate',
+      document_date: Date.today.iso8601,
+      version: '2.0',
+      encrypted_flag: false,
+      folder_name: nil,
+      state_name: nil,
+      person_name: nil,
+      tag_names: [],
+      document_text: 'duplicate text',
+      created_at: 1.day.ago.iso8601,
+      updated_at: 1.day.ago.iso8601
+    }
+
+    original_doc_count = @user.documents.count
+
+    post :create, params: { import: duplicate_data }, format: :json
+
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+
+    assert_not json_response['success']
+    assert_not_empty json_response['errors']
+    assert_includes json_response['errors'].first, 'Duplicate documents in import'
+    assert_includes json_response['errors'].first, 'Imported Document'
+
+    assert_equal original_doc_count, @user.documents.count
+  end
+
+  test 'conflict: mixed existing and new documents should import new ones' do
+    test_date = Date.today
+    @user.documents.create!(
+      title: 'Imported Document',
+      document_date: test_date,
+      document_url: 'existing.pdf'
+    )
+
+    data_with_new_doc = @valid_export_data.deep_dup
+    data_with_new_doc[:data][:documents] << {
+      title: 'New Document',
+      description: 'Brand new',
+      document_date: 1.day.ago.iso8601,
+      version: '1.0',
+      encrypted_flag: false,
+      folder_name: 'Imported Work',
+      state_name: nil,
+      person_name: nil,
+      tag_names: [],
+      document_text: 'new document text',
+      created_at: 1.day.ago.iso8601,
+      updated_at: 1.day.ago.iso8601
+    }
+
+    original_doc_count = @user.documents.count
+
+    assert_difference -> { @user.documents.count }, 1 do
+      post :create, params: { import: data_with_new_doc }, format: :json
+    end
+
+    assert_response :success
+    json_response = JSON.parse(response.body)
+
+    assert json_response['success']
+    assert_equal 1, json_response['imported_data']['documents']
+    assert_equal 1, json_response['imported_data']['documents_skipped']
+    assert_not_empty json_response['warnings']
+
+    assert @user.documents.find_by(title: 'Imported Document').present?
+    assert @user.documents.find_by(title: 'New Document').present?
   end
 end

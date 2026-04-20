@@ -31,6 +31,7 @@ class UserImportService
       validate_schema_version
       validate_structure
       validate_unique_names
+      validate_encrypted_documents
     rescue SchemaVersionError => e
       @errors << e.message
     rescue ImportError => e
@@ -147,6 +148,19 @@ class UserImportService
     check_existing_conflicts(folder_names, tag_names, person_names, state_names)
   end
 
+  def validate_encrypted_documents
+    data = @json_data['data']
+
+    data['documents'].each_with_index do |doc, idx|
+      next unless doc['encrypted_flag']
+
+      if doc.key?('document_text') && doc['document_text'].present?
+        raise ImportError,
+          "Document #{idx} ('#{doc['title']}'): 加密文档禁止导入正文检索字段"
+      end
+    end
+  end
+
   def check_existing_conflicts(folder_names, tag_names, person_names, state_names)
     existing_folders = @user.folders.where(name: folder_names).pluck(:name)
     if existing_folders.any?
@@ -166,6 +180,59 @@ class UserImportService
     existing_states = @user.states.where(name: state_names).pluck(:name)
     if existing_states.any?
       @warnings << "States already exist and will be skipped: #{existing_states.join(', ')}"
+    end
+
+    check_document_conflicts
+  end
+
+  def check_document_conflicts
+    data = @json_data['data']
+    imported_docs = data['documents']
+
+    doc_keys = Set.new
+    duplicate_in_import = []
+
+    imported_docs.each do |doc|
+      key = "#{doc['title']}|||#{doc['document_date']}"
+      if doc_keys.include?(key)
+        duplicate_in_import << doc['title']
+      end
+      doc_keys.add(key)
+    end
+
+    if duplicate_in_import.any?
+      raise ImportError,
+        "Duplicate documents in import (same title + document_date): #{duplicate_in_import.uniq.join(', ')}"
+    end
+
+    existing_doc_keys = Set.new
+    @user.documents.each do |doc|
+      key = "#{doc.title}|||#{doc.document_date}"
+      existing_doc_keys.add(key)
+    end
+
+    import_dates = imported_docs.pluck('document_date').compact.uniq
+    existing_docs_by_date = {}
+
+    import_dates.each do |date_str|
+      date = parse_date(date_str)
+      docs = @user.documents.where(document_date: date)
+      docs.each do |doc|
+        key = "#{doc.title}|||#{doc.document_date}"
+        existing_docs_by_date[key] = doc
+      end
+    end
+
+    conflicting_titles = []
+    imported_docs.each do |doc|
+      key = "#{doc['title']}|||#{doc['document_date']}"
+      if existing_docs_by_date.key?(key)
+        conflicting_titles << doc['title']
+      end
+    end
+
+    if conflicting_titles.any?
+      @warnings << "Documents already exist (same title + document_date) and will be skipped: #{conflicting_titles.join(', ')}"
     end
   end
 
@@ -320,8 +387,28 @@ class UserImportService
 
   def import_documents(documents_data)
     imported = 0
+    skipped = 0
+
+    import_dates = documents_data.pluck('document_date').compact.uniq
+    existing_docs_by_key = {}
+
+    import_dates.each do |date_str|
+      date = parse_date(date_str)
+      docs = @user.documents.where(document_date: date)
+      docs.each do |doc|
+        key = "#{doc.title}|||#{doc.document_date}"
+        existing_docs_by_key[key] = doc
+      end
+    end
 
     documents_data.each do |doc_data|
+      doc_key = "#{doc_data['title']}|||#{doc_data['document_date']}"
+
+      if existing_docs_by_key.key?(doc_key)
+        skipped += 1
+        next
+      end
+
       folder_id = @name_to_id_map[:folders][doc_data['folder_name']]
       state_id = @name_to_id_map[:states][doc_data['state_name']]
       person_id = @name_to_id_map[:people][doc_data['person_name']]
@@ -363,6 +450,7 @@ class UserImportService
     end
 
     @imported_data[:documents] = imported
+    @imported_data[:documents_skipped] = skipped if skipped > 0
   end
 
   def parse_time(value)
