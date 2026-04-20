@@ -1,11 +1,19 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+important:
+  name: Important
+  user: one
+  color: '#ff0000'
 
-one:
-  name: MyString
-  user: 
-  color: MyString
+urgent:
+  name: Urgent
+  user: one
+  color: '#ff9900'
 
-two:
-  name: MyString
-  user: 
-  color: MyString
+personal_tag:
+  name: Personal
+  user: one
+  color: '#00ff00'
+
+confidential:
+  name: Confidential
+  user: two
+  color: '#9900ff'

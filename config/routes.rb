@@ -18,4 +18,8 @@ Rails.application.routes.draw do
 
   get 'search/suggestions/:text', to: 'search#suggestions'
   get 'version', to: 'version#version'
+
+  post 'export', to: 'exports#create'
+  post 'import', to: 'imports#create'
+  post 'import/preview', to: 'imports#preview'
 end
