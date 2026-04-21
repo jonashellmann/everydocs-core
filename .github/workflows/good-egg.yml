@@ -1,0 +1,26 @@
+name: Good Egg
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - id: egg
+        uses: 2ndSetAI/good-egg@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          skip-known-contributors: 'false'
+          comment: 'false'
+          fail-on-low: 'true'
+      - name: Print results
+        run: |
+          echo "Score: ${{ steps.egg.outputs.score }}"
+          echo "Trust level: ${{ steps.egg.outputs.trust-level }}"
+          echo "Model: ${{ steps.egg.outputs.scoring-model }}"
+          echo "User: ${{ steps.egg.outputs.user }}"
