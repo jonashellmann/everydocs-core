@@ -17,7 +17,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-known-contributors: 'false'
           comment: 'true'
-          check-run: 'true'
           fail-on-low: 'true'
           scoring-model: v2
       - name: Print results
