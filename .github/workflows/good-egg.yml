@@ -16,9 +16,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-known-contributors: 'false'
-          comment: 'true'
+          comment: 'false'
           fail-on-low: 'true'
-          scoring-model: v2
       - name: Print results
         run: |
           echo "Score: ${{ steps.egg.outputs.score }}"
