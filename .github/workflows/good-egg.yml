@@ -11,7 +11,17 @@ jobs:
   score:
     runs-on: ubuntu-latest
     steps:
-      - uses: 2ndSetAI/good-egg@v2
+      - id: egg
+        uses: 2ndSetAI/good-egg@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          skip-known-contributors: 'false'
+          comment: 'true'
+          check-run: 'true'
+          fail-on-low: 'true'
+          scoring-model: v2
+      - name: Print results
+        run: |
+          echo "Score: ${{ steps.egg.outputs.score }}"
+          echo "Trust level: ${{ steps.egg.outputs.trust-level }}"
+          echo "Model: ${{ steps.egg.outputs.scoring-model }}"
+          echo "User: ${{ steps.egg.outputs.user }}"
