@@ -93,7 +93,7 @@ GEM
     debug_inspector (1.2.0)
     deep_merge (1.2.2)
     drb (2.2.3)
-    erb (6.0.2)
+    erb (6.0.4)
     erubi (1.13.1)
     execjs (2.10.1)
     ffi (1.17.4-aarch64-linux-gnu)
