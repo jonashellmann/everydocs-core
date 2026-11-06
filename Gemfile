@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '>= 8.0.4.1', '< 8.1'
+gem 'rails', '~> 8.1.0', '>= 8.1.4.1'
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3', '>= 2.1'
+gem 'sqlite3', '~> 2.10', '>= 2.10.2'
 gem 'mysql2', '~> 0.5'
 # Use SCSS for stylesheets
 gem 'sassc-rails'
@@ -18,8 +18,6 @@ gem 'jquery-rails'
 gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
-# bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 1.1.0', group: :doc
 
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
@@ -30,11 +28,10 @@ gem 'config'
 gem 'pdf-reader'
 
 # Rails server
-gem 'webrick', '>=1.8.2'
+gem 'puma'
 
 gem 'rack-cors'
-gem 'lockbox', '=1.3.3'
-gem 'json', '< 3'
+gem 'lockbox', '~> 2.2.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -43,7 +40,7 @@ end
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0'
+  gem 'web-console', '~> 4.3.0'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
