@@ -3,7 +3,7 @@ class StatesController < ApplicationController
 
   # GET /states
   def index
-    @states = State.where("id >= ?", 0)
+    @states = current_user.states
     json_response(@states)
   end
 
@@ -37,6 +37,6 @@ class StatesController < ApplicationController
   end
 
   def set_state
-    @state = State.find(params[:id])
+    @state = current_user.states.find(params[:id])
   end
 end

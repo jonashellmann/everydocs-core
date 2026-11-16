@@ -53,9 +53,9 @@ class DocumentsController < ApplicationController
       end
     end
 
-    @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
-    @state = params[:state].blank? ? nil : State.find(params[:state])
-    @person = params[:person].blank? ? nil : Person.find(params[:person])
+    @folder = params[:folder].blank? ? nil : current_user.folders.find(params[:folder])
+    @state = params[:state].blank? ? nil : current_user.states.find(params[:state])
+    @person = params[:person].blank? ? nil : current_user.people.find(params[:person])
 
     @params = {
       "title" => params[:title], 
@@ -91,9 +91,9 @@ class DocumentsController < ApplicationController
 
   # PUT /documents/:id
   def update
-    @folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
-    @state = params[:state].blank? ? nil : State.find(params[:state])
-    @person = params[:person].blank? ? nil : Person.find(params[:person])
+    @folder = params[:folder].blank? ? nil : current_user.folders.find(params[:folder])
+    @state = params[:state].blank? ? nil : current_user.states.find(params[:state])
+    @person = params[:person].blank? ? nil : current_user.people.find(params[:person])
 
     @params = {
       "title" => params[:title],
@@ -110,10 +110,24 @@ class DocumentsController < ApplicationController
 
   # DELETE /documents/:id
   def destroy
-    @filename = Settings.document_folder + @document.document_url
-    File.delete(@filename) if File.exist?(@filename)
-    
-    @document.destroy
+    filename = @document.document_url
+  
+    if filename.present?
+      unless filename.match?(/\A[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\.pdf\z/i)
+        raise SecurityError, "Invalid document filename"
+      end
+  
+      document_dir = File.realpath(Settings.document_folder)
+      filepath = File.join(document_dir, filename)
+  
+      if File.symlink?(filepath)
+        raise SecurityError, "Symlink not allowed"
+      end
+  
+      File.delete(filepath) if File.file?(filepath)
+    end
+  
+    @document.destroy!
     head :no_content
   end
 
@@ -132,7 +146,7 @@ class DocumentsController < ApplicationController
   end
 
   def set_document
-    @document = Document.find(params[:id])
+    @document = current_user.documents.find(params[:id])
   end
 
   def set_documents
