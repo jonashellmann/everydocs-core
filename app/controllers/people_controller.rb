@@ -33,10 +33,10 @@ class PeopleController < ApplicationController
   private
 
   def person_params
-    params.permit(:name, :user)
+    params.permit(:name)
   end
 
   def set_person
-    @person = Person.find(params[:id])
+    @person = current_user.people.find(params[:id])
   end
 end

@@ -33,10 +33,10 @@ class TagsController < ApplicationController
   private
 
   def tag_params
-    params.permit(:name, :user, :color)
+    params.permit(:name, :color)
   end
 
   def set_tag
-    @tag = Tag.find(params[:id])
+    @tag = current_user.tags.find(params[:id])
   end
 end

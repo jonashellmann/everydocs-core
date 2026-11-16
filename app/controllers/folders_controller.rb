@@ -15,7 +15,7 @@ class FoldersController < ApplicationController
 
   # POST /folders
   def create
-    @parent_folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
+    @parent_folder = params[:folder].blank? ? nil : current_user.folders.find(params[:folder])
     @params = {
       "name" => params[:name],
       "folder" => @parent_folder
@@ -32,7 +32,7 @@ class FoldersController < ApplicationController
 
   # PUT /folders/:id
   def update
-    @parent_folder = params[:folder].blank? ? nil : Folder.find(params[:folder])
+    @parent_folder = params[:folder].blank? ? nil : current_user.folders.find(params[:folder])
     @params = {
       "name" => params[:name],
       "folder" => @parent_folder
@@ -51,6 +51,6 @@ class FoldersController < ApplicationController
   private
 
   def set_folder
-    @folder = Folder.find(params[:id])
+    @folder = current_user.folders.find(params[:id])
   end
 end
