@@ -1,4 +1,4 @@
-FROM ruby:3.4.12
+FROM ruby:3.4.13
 
 LABEL org.opencontainers.image.authors="Jonas Hellmann <mail@jonas-hellmann.de>"
 
